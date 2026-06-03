@@ -11,4 +11,4 @@
         window.API_BASE = 'https://stardew-meal-backend.onrender.com';
         注意：结尾不要加斜杠 /
    ========================================================= */
-window.API_BASE = '';
+window.API_BASE = 'https://taste-diary.onrender.com';
