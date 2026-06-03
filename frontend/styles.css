@@ -1,0 +1,3509 @@
+/* =====================================================
+   TASTE DIARY · 食味日记 像素风
+   配色:暖橙 + 草绿 + 木褐 + 天空蓝
+   ===================================================== */
+
+:root {
+  /* 天空/底色 */
+  --sky-light: #c8e0f0;
+  --sky: #a8c5dc;
+  --sky-deep: #7da3c0;
+
+  /* 大地/草地 */
+  --grass-light: #c9e8ad;
+  --grass: #7bc457;
+  --grass-deep: #5fa849;
+  --grass-dark: #3d7a32;
+
+  /* 木质/泥土 */
+  --wood-light: #deb78a;
+  --wood: #a67244;
+  --wood-deep: #7a5230;
+  --wood-dark: #5a3a20;
+
+  /* 暖色调 */
+  --warm-cream: #faf3e3;
+  --warm-paper: #fff8e8;
+  --warm-yellow: #fce29c;
+  --warm-orange: #f4a974;
+  --warm-deep: #d97f3f;
+
+  /* 强调色 */
+  --berry: #e85a4f;
+  --berry-deep: #c44539;
+  --pink: #ff8a96;
+  --pink-soft: #fcc6d0;
+  --lav: #c8b5e0;
+
+  /* 文字 */
+  --ink: #4a3520;
+  --ink2: #7a5a3a;
+  --ink-dark: #2d2418;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  background: var(--warm-cream);
+  color: var(--ink-dark);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', 'Fredoka', monospace;
+  font-size: 18px;
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    radial-gradient(rgba(94,73,42,0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ============ 通用按钮 ============ */
+.pbtn {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 12px;
+  padding: 12px 22px;
+  background: var(--warm-yellow);
+  color: var(--ink-dark);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 4px 4px 0 var(--ink-dark);
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: transform 0.08s steps(2), background 0.12s steps(2), box-shadow 0.08s steps(2);
+  user-select: none;
+  position: relative;
+  line-height: 1.4;
+}
+.pbtn:hover {
+  transform: translate(-2px,-2px);
+  box-shadow: 6px 6px 0 var(--ink-dark);
+}
+.pbtn:active {
+  transform: translate(2px,2px);
+  box-shadow: 2px 2px 0 var(--ink-dark);
+}
+.pbtn-primary { background: var(--warm-orange); color: #fff; }
+.pbtn-primary:hover { background: var(--warm-deep); }
+.pbtn-secondary { background: var(--grass); color: #fff; }
+.pbtn-secondary:hover { background: var(--grass-deep); }
+.pbtn-ghost { background: var(--warm-paper); }
+.pbtn-ghost:hover { background: var(--warm-yellow); }
+.pbtn.small { font-size: 10px; padding: 8px 14px; box-shadow: 3px 3px 0 var(--ink-dark); }
+.pbtn.small:hover { box-shadow: 5px 5px 0 var(--ink-dark); }
+.pbtn.block { display: block; width: 100%; }
+.pbtn:disabled {
+  background: #ccc;
+  color: #888;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 4px 4px 0 var(--ink-dark);
+}
+
+/* ============ 开机加载页:翻书动画 ============ */
+#bootScreen.book-stage {
+  position: fixed; inset: 0;
+  background: linear-gradient(180deg, var(--sky-light) 0%, var(--sky) 48%, var(--grass-light) 48%, var(--grass) 100%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  perspective: 1600px;
+  transition: opacity 0.5s steps(5);
+  overflow: hidden;
+}
+#bootScreen.book-stage.hide { opacity: 0; pointer-events: none; }
+
+.book-bg { position: absolute; inset: 0; pointer-events: none; }
+.book-bg .boot-sun {
+  position: absolute; top: 8%; right: 12%;
+  width: 40px; height: 40px;
+  background: var(--warm-yellow); border: 4px solid var(--ink-dark);
+  box-shadow:
+    0 -10px 0 -2px var(--warm-yellow), 0 -10px 0 0 var(--ink-dark),
+    10px 0 0 -2px var(--warm-yellow), 10px 0 0 0 var(--ink-dark),
+    0 10px 0 -2px var(--warm-yellow), 0 10px 0 0 var(--ink-dark),
+    -10px 0 0 -2px var(--warm-yellow), -10px 0 0 0 var(--ink-dark);
+  animation: sunSpin 6s steps(8) infinite;
+}
+@keyframes sunSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+.book-bg .boot-cloud {
+  position: absolute; width: 40px; height: 12px;
+  background: #fff; border: 3px solid var(--ink-dark);
+  animation: cloudFloat 8s steps(8) infinite;
+}
+.book-bg .boot-cloud::before, .book-bg .boot-cloud::after {
+  content:''; position:absolute; background:#fff; border:3px solid var(--ink-dark);
+}
+.book-bg .boot-cloud::before { width:14px; height:8px; left:6px; top:-8px; border-bottom:none; }
+.book-bg .boot-cloud::after  { width:14px; height:8px; right:6px; top:-8px; border-bottom:none; }
+.book-bg .boot-cloud.c1 { top: 10%; left: 8%; animation-delay: 0s; }
+.book-bg .boot-cloud.c2 { top: 8%; left: 82%; animation-delay: -3s; }
+.book-bg .boot-cloud.c3 { top: 18%; left: 30%; animation-delay: -5s; }
+@keyframes cloudFloat { 0%,100% { transform: translateX(0); } 50% { transform: translateX(-15px); } }
+
+/* —— 书本体 —— */
+.pbook {
+  position: relative;
+  width: 680px;
+  max-width: 94vw;
+  height: 440px;
+  max-height: 74vh;
+  transform-style: preserve-3d;
+  transform: rotateX(8deg);
+  animation: bookFloat 4s ease-in-out infinite;
+  will-change: transform;
+}
+/* 翻页时暂停整本书的浮动,避免 3D 叠加抖动 */
+#bootScreen[data-phase="flip"] .pbook,
+#bootScreen[data-phase="open"] .pbook { animation-play-state: paused; }
+@keyframes bookFloat {
+  0%,100% { transform: rotateX(8deg) translateY(0); }
+  50%     { transform: rotateX(8deg) translateY(-6px); }
+}
+.pbook-spine {
+  position: absolute; top: -10px; bottom: -10px; left: 50%;
+  width: 14px; transform: translateX(-50%);
+  background: var(--wood-dark);
+  border: 3px solid var(--ink-dark);
+  border-radius: 2px;
+  z-index: 0;
+}
+
+/* 两个半页:左 / 右 */
+.pbook-leaf {
+  position: absolute; top: 0; bottom: 0; width: 50%;
+  background: var(--wood);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 0 10px 0 0 rgba(45,36,24,0.25);
+}
+.pbook-left  { left: 0;  border-right: none; }
+.pbook-right { right: 0; border-left: none; }
+.leaf-paper {
+  position: absolute; inset: 8px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 30px, rgba(122,82,48,0.08) 30px 31px),
+    var(--warm-paper);
+  border: 2px solid var(--wood-deep);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 18px;
+  overflow: hidden;
+}
+.pbook-left .leaf-paper { justify-content: center; gap: 18px; }
+.leaf-doodle { width: 140px; height: 84px; animation: mascotJump 1.1s steps(4) infinite; }
+.leaf-doodle svg { width:100%; height:100%; image-rendering: pixelated; }
+.leaf-doodle .doodle-peng { animation: pengBob 1.4s steps(4) infinite; transform-origin: center; }
+@keyframes pengBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(2px); } }
+@keyframes mascotJump { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+.leaf-caption {
+  font-family: 'Press Start 2P','ZCOOL QingKe HuangYou', monospace;
+  font-size: 12px; line-height: 1.9; color: var(--ink); text-align:center;
+}
+.leaf-caption-en {
+  display: inline-block; margin-top: 6px;
+  font-family: 'Press Start 2P', monospace; font-size: 8px;
+  color: var(--ink2); letter-spacing: 0.5px; line-height: 1.6;
+}
+
+/* 右页里的登录区 */
+.book-auth {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center;
+  padding: 24px 18px;
+  box-sizing: border-box;
+  opacity: 0; transition: opacity 0.4s steps(4);
+}
+.book-auth .auth-inner {
+  width: 100%; max-width: 300px;
+  display: flex; flex-direction: column; align-items: stretch;
+}
+.auth-lang-switch {
+  position: absolute; top: 10px; left: 10px; z-index: 5;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  padding: 5px 7px;
+  background: var(--warm-yellow);
+  color: var(--ink-dark);
+  border: 2px solid var(--ink-dark);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: transform 0.08s steps(2);
+}
+.auth-lang-switch:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 rgba(0,0,0,0.5); }
+#bootScreen[data-phase="login"] .book-auth { opacity: 1; }
+.book-auth .auth-title {
+  font-family: 'Press Start 2P', monospace; font-size: 24px;
+  color: var(--ink-dark); letter-spacing: 2px; text-shadow: 3px 3px 0 var(--warm-yellow);
+  line-height: 1.25; text-align: center; margin-bottom: 8px;
+}
+.book-auth .auth-sub {
+  font-family: 'Press Start 2P','ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px; color: var(--ink2); text-align: center; margin-bottom: 28px;
+}
+.book-auth .auth-field { margin-bottom: 18px; text-align: left; }
+.book-auth .auth-inner .auth-label { font-size: 12px; margin-bottom: 8px; }
+.book-auth .auth-inner .auth-input { width: 100%; padding: 11px 14px; font-size: 19px; box-sizing: border-box; }
+.book-auth .auth-inner .pbtn.block { width: 100%; padding: 13px 10px; font-size: 13px; }
+
+/* —— 封面:覆盖整本,向左翻开 —— */
+.pbook-cover {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 50%;
+  transform-origin: right center;
+  transform-style: preserve-3d;
+  transition: transform 1s cubic-bezier(.5,.05,.25,1);
+  z-index: 20;
+  /* 封面初始盖在右页上 → 平移到右半 */
+  left: 50%;
+}
+.cover-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border: 4px solid var(--ink-dark);
+}
+.cover-front {
+  background:
+    repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0 6px, transparent 6px 12px),
+    linear-gradient(160deg, var(--berry) 0%, var(--berry-deep) 100%);
+  display:flex; align-items:center; justify-content:center;
+}
+.cover-back {
+  background: var(--wood);
+  transform: rotateY(180deg);
+}
+.cover-frame {
+  width: 78%; height: 80%;
+  border: 3px solid #ffe6a6;
+  box-shadow: inset 0 0 0 3px rgba(45,36,24,0.4);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+}
+.cover-mascot { width: 130px; height: 78px; }
+.cover-mascot svg { width:100%; height:100%; image-rendering: pixelated; }
+.cover-title {
+  font-family:'Press Start 2P', monospace; font-size: 22px; line-height:1.5;
+  color:#fff5cf; text-align:center; letter-spacing: 2px;
+  text-shadow: 2px 2px 0 var(--ink-dark);
+}
+.cover-sub {
+  font-family:'Press Start 2P','ZCOOL QingKe HuangYou', monospace;
+  font-size: 9px; color:#ffe6a6;
+}
+/* 打开:封面翻到左侧 */
+#bootScreen[data-phase="open"]   .pbook-cover,
+#bootScreen[data-phase="flip"]   .pbook-cover,
+#bootScreen[data-phase="login"]  .pbook-cover {
+  transform: translateX(-100%) rotateY(-170deg);
+}
+/* 翻开后封面不再拦截点击,否则会挡住登录表单/注册tab/访客按钮 */
+#bootScreen[data-phase="flip"]  .pbook-cover,
+#bootScreen[data-phase="login"] .pbook-cover { pointer-events: none; }
+#bootScreen[data-phase="login"] .pbook-flip  { pointer-events: none; opacity: 0; }
+/* 登录内容层置顶并恢复可点击 */
+#bootScreen[data-phase="login"] .pbook-right { z-index: 30; }
+#bootScreen[data-phase="login"] .book-auth { pointer-events: auto; position: relative; z-index: 31; }
+#bootScreen[data-phase="login"] .auth-lang-switch { pointer-events: auto; z-index: 32; }
+
+/* —— 翻动的活页 —— */
+.pbook-flip {
+  position: absolute; top: 0; bottom: 0; left: 50%; width: 50%;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  z-index: 15;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+.pbook-flip .flip-front, .pbook-flip .flip-back {
+  position:absolute; inset:0; backface-visibility:hidden;
+  border: 4px solid var(--ink-dark);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 28px, rgba(122,82,48,0.08) 28px 29px),
+    var(--warm-paper);
+}
+.pbook-flip .flip-back { transform: rotateY(180deg); background: var(--warm-cream); }
+#bootScreen[data-phase="flip"] .pbook-flip { opacity: 1; }
+#bootScreen[data-phase="flip"] .pbook-flip.f1 { animation: pageTurn 0.62s cubic-bezier(.37,.16,.32,1) 0.00s forwards; }
+#bootScreen[data-phase="flip"] .pbook-flip.f2 { animation: pageTurn 0.62s cubic-bezier(.37,.16,.32,1) 0.30s forwards; }
+#bootScreen[data-phase="flip"] .pbook-flip.f3 { animation: pageTurn 0.62s cubic-bezier(.37,.16,.32,1) 0.60s forwards; }
+@keyframes pageTurn {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(-178deg); }
+}
+
+/* —— 底部进度条 —— */
+.book-loader {
+  margin-top: 30px;
+  display:flex; flex-direction:column; align-items:center;
+  transition: opacity 0.4s steps(4);
+}
+#bootScreen[data-phase="login"] .book-loader { opacity: 0; pointer-events:none; }
+.boot-bar {
+  width: 280px; max-width: 80vw; height: 20px;
+  background: var(--wood-deep); border: 3px solid var(--ink-dark);
+  position: relative; overflow: hidden; box-shadow: 3px 3px 0 var(--ink-dark);
+}
+.boot-bar-fill {
+  height: 100%; width: 0%;
+  background: repeating-linear-gradient(90deg, var(--warm-orange) 0 8px, var(--warm-deep) 8px 16px);
+  transition: width 0.2s steps(4);
+}
+.boot-bar-text {
+  font-family: 'Press Start 2P', monospace; font-size: 10px;
+  color: var(--ink-dark); margin-top: 12px; letter-spacing: 1px;
+}
+.boot-dots::after {
+  content: ''; display: inline-block;
+  animation: bootDots 1s steps(4) infinite; min-width: 24px; text-align: left;
+}
+@keyframes bootDots {
+  0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; }
+}
+
+/* —— 草地野餐场景 —— */
+.picnic-scene {
+  position: absolute;
+  bottom: 4%; left: 50%; transform: translateX(-50%);
+  width: 360px; max-width: 86vw; height: 110px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s steps(5);
+}
+#bootScreen[data-phase="login"] .picnic-scene { opacity: 1; }
+.picnic-scene > * { pointer-events: auto; }
+.picnic-mat {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%) perspective(120px) rotateX(46deg);
+  width: 240px; height: 90px;
+  background:
+    repeating-linear-gradient(0deg, #e85a4f 0 14px, #fff5ef 14px 28px),
+    repeating-linear-gradient(90deg, #e85a4f 0 14px, transparent 14px 28px);
+  background-blend-mode: multiply;
+  border: 3px solid var(--ink-dark);
+  box-shadow: 0 4px 0 rgba(45,36,24,0.2);
+  opacity: 0.96;
+}
+.picnic-basket {
+  position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%);
+  width: 56px; height: 42px; z-index: 7;
+  animation: matItemBob 2.6s steps(4) infinite;
+}
+.picnic-basket svg { width:100%; height:100%; image-rendering: pixelated; }
+@keyframes matItemBob { 0%,100%{ transform: translateX(-50%) translateY(0);} 50%{ transform: translateX(-50%) translateY(-2px);} }
+
+.picnic-cat, .picnic-peng {
+  position: absolute; bottom: 26px; z-index: 8;
+  cursor: pointer; outline: none;
+  transition: transform 0.15s ease;
+}
+.picnic-cat { left: 6px; width: 64px; height: 60px; }
+.picnic-peng { right: 6px; width: 60px; height: 64px; }
+.picnic-cat svg, .picnic-peng svg { width:100%; height:100%; image-rendering: pixelated; }
+.picnic-cat:hover, .picnic-peng:hover,
+.picnic-cat:focus-visible, .picnic-peng:focus-visible { transform: translateY(-3px) scale(1.05); }
+
+/* 待机动画 */
+.picnic-cat { animation: pcIdle 3.4s steps(6) infinite; }
+.picnic-peng { animation: ppIdle 3s steps(6) infinite; }
+@keyframes pcIdle { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-2px);} }
+@keyframes ppIdle { 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-3px);} }
+.pcat-tail { animation: pcatTail 1.8s steps(4) infinite; transform-origin: 25px 19px; }
+@keyframes pcatTail { 0%,100%{ transform: rotate(0);} 50%{ transform: rotate(-14deg);} }
+
+/* 眨眼 */
+.pcat-eyes-closed { opacity: 0; }
+.picnic-cat[data-blink="1"] .pcat-eyes { opacity: 0; }
+.picnic-cat[data-blink="1"] .pcat-eyes-closed { opacity: 1; }
+
+/* 点击反馈:猫跳 / 企鹅拍翅 */
+.picnic-cat[data-poke="1"] { animation: pcatHop 0.5s steps(5) 1; }
+@keyframes pcatHop { 0%{transform:translateY(0);} 35%{transform:translateY(-14px) scale(1.06);} 70%{transform:translateY(0);} 85%{transform:translateY(-4px);} 100%{transform:translateY(0);} }
+.picnic-peng[data-poke="1"] .ppeng-wingL { animation: pengFlapL 0.5s steps(4) 2; transform-origin: 7px 10px; }
+.picnic-peng[data-poke="1"] .ppeng-wingR { animation: pengFlapR 0.5s steps(4) 2; transform-origin: 23px 10px; }
+@keyframes pengFlapL { 0%,100%{ transform: rotate(0);} 50%{ transform: rotate(34deg);} }
+@keyframes pengFlapR { 0%,100%{ transform: rotate(0);} 50%{ transform: rotate(-34deg);} }
+.picnic-peng[data-poke="1"] .ppeng-body { animation: pengWiggle 0.5s steps(4) 1; }
+@keyframes pengWiggle { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-2px);} 75%{transform:translateX(2px);} }
+
+/* 对话气泡 */
+.picnic-bubble {
+  position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(-2px);
+  background: #fff; border: 3px solid var(--ink-dark);
+  padding: 5px 8px; white-space: nowrap;
+  font-family: 'VT323','ZCOOL QingKe HuangYou', monospace; font-size: 15px;
+  color: var(--ink-dark); border-radius: 4px;
+  box-shadow: 2px 2px 0 var(--ink-dark);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.18s steps(3), transform 0.18s steps(3);
+  z-index: 12;
+}
+.picnic-bubble::after {
+  content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  border:5px solid transparent; border-top-color: var(--ink-dark);
+}
+.picnic-bubble.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+
+@media (max-width: 560px) {
+  .picnic-scene { width: 300px; height: 96px; }
+  .picnic-cat { width: 54px; height: 52px; }
+  .picnic-peng { width: 52px; height: 56px; }
+  .picnic-mat { width: 200px; }
+}
+
+/* —— 首页草地里的野餐场景(尺寸更小、靠右) —— */
+.picnic-scene.hero-picnic {
+  position: absolute;
+  left: auto; right: 2%; bottom: 8px;
+  transform: none;
+  width: 180px; height: 78px; max-width: 46%;
+  opacity: 1;
+  z-index: 3;
+}
+.hero-picnic .picnic-mat { width: 140px; height: 56px; bottom: 4px; }
+.hero-picnic .picnic-basket { width: 38px; height: 30px; bottom: 22px; }
+.hero-picnic .picnic-cat { left: 2px; width: 46px; height: 44px; bottom: 16px; }
+.hero-picnic .picnic-peng { right: 2px; width: 44px; height: 48px; bottom: 16px; }
+.hero-picnic .picnic-bubble { font-size: 13px; padding: 4px 6px; }
+@media (max-width: 560px) {
+  .picnic-scene.hero-picnic { width: 140px; height: 64px; right: 1%; }
+  .hero-picnic .picnic-cat { width: 38px; height: 36px; }
+  .hero-picnic .picnic-peng { width: 36px; height: 40px; }
+  .hero-picnic .picnic-mat { width: 108px; }
+}
+
+@media (max-width: 560px) {
+  .pbook { height: 420px; }
+  .leaf-caption { font-size: 10px; }
+  .cover-title { font-size: 18px; }
+  .book-auth .auth-title { font-size: 19px; }
+}
+
+/* ============ 登录页 ============ */
+#authScreen {
+  position: fixed; inset: 0;
+  background: linear-gradient(180deg, var(--sky-light) 0%, var(--sky) 35%, var(--grass-light) 65%, var(--grass) 100%);
+  z-index: 5000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+#authScreen.hide { display: none; }
+.auth-bg-deco {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-cloud {
+  position: absolute;
+  width: 60px; height: 18px;
+  background: #fff;
+  border: 3px solid var(--ink-dark);
+  animation: cloudFloat 10s steps(10) infinite;
+}
+.bg-cloud::before, .bg-cloud::after {
+  content:''; position:absolute;
+  background:#fff; border:3px solid var(--ink-dark);
+  border-bottom: none;
+}
+.bg-cloud::before { width:20px; height:12px; left:8px; top:-12px; }
+.bg-cloud::after { width:20px; height:12px; right:8px; top:-12px; }
+.bg-tree {
+  position: absolute;
+  width: 80px; height: 130px;
+  background: transparent;
+}
+.bg-tree.small { transform: scale(0.7); }
+.bg-tree::before {
+  content:'';
+  position:absolute;
+  bottom:0; left: 50%;
+  transform: translateX(-50%);
+  width: 22px; height: 50px;
+  background: var(--wood-deep);
+  border: 3px solid var(--ink-dark);
+}
+.bg-tree::after {
+  content:'';
+  position:absolute;
+  bottom: 45px; left: 50%;
+  transform: translateX(-50%);
+  width: 70px; height: 70px;
+  background: var(--grass-deep);
+  border: 3px solid var(--ink-dark);
+  border-radius: 50%;
+  box-shadow:
+    -15px -8px 0 -8px var(--grass-deep),
+    15px -8px 0 -8px var(--grass-deep),
+    inset -6px -6px 0 0 var(--grass-dark);
+}
+.bg-flower {
+  position: absolute;
+  width: 16px; height: 16px;
+  background: var(--berry);
+  border: 2px solid var(--ink-dark);
+  animation: flowerSway 3s steps(6) infinite;
+}
+.bg-flower::before {
+  content:'';
+  position:absolute;
+  bottom: -10px; left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 10px;
+  background: var(--grass-deep);
+}
+.bg-flower.yellow { background: var(--warm-yellow); }
+@keyframes flowerSway {
+  0%,100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+.bg-grass {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 100px;
+  background: var(--grass-deep);
+  border-top: 4px solid var(--ink-dark);
+}
+
+.auth-card {
+  position: relative;
+  z-index: 2;
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow:
+    8px 8px 0 var(--ink-dark),
+    inset 0 4px 0 var(--warm-yellow),
+    inset 0 -4px 0 #f0d896;
+  padding: 36px 32px 28px;
+  width: 100%;
+  max-width: 420px;
+}
+.auth-sign {
+  width: 80px; height: 80px;
+  margin: -68px auto 14px;
+  display: block;
+  animation: mascotBob 2.5s steps(5) infinite;
+}
+.auth-sign svg { width:100%; height:100%; image-rendering: pixelated; }
+@keyframes mascotBob {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.auth-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  color: var(--ink-dark);
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: 2px;
+}
+.auth-sub {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  text-align: center;
+  color: var(--ink2);
+  margin-bottom: 24px;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+.auth-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+}
+.auth-tab {
+  flex: 1;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  padding: 12px 8px;
+  background: var(--warm-cream);
+  border: none;
+  border-right: 3px solid var(--ink-dark);
+  cursor: pointer;
+  color: var(--ink-dark);
+  letter-spacing: 1px;
+  transition: background 0.1s steps(2);
+}
+.auth-tab:last-child { border-right: none; }
+.auth-tab:hover { background: var(--warm-yellow); }
+.auth-tab.active { background: var(--warm-orange); color: #fff; }
+.auth-field { margin-bottom: 16px; }
+.auth-label {
+  display: block;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 10px;
+  margin-bottom: 6px;
+  color: var(--ink-dark);
+  letter-spacing: 1px;
+}
+.auth-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: 'VT323', monospace;
+  font-size: 20px;
+  background: var(--warm-cream);
+  border: 3px solid var(--ink-dark);
+  color: var(--ink-dark);
+  outline: none;
+  transition: background 0.1s steps(2);
+  box-shadow: inset 2px 2px 0 rgba(74,53,32,0.1);
+}
+.auth-input:focus {
+  background: var(--warm-yellow);
+  box-shadow: inset 2px 2px 0 var(--warm-deep);
+}
+.auth-err {
+  color: var(--berry-deep);
+  font-size: 16px;
+  margin: 6px 0 10px;
+  min-height: 22px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+.guest-link {
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+  color: var(--ink2);
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 6px;
+  background: transparent;
+  border: none;
+  width: 100%;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+.guest-link:hover { color: var(--ink-dark); }
+/* 右页登录区固定在一页内,不使用滚轮(更像真书) */
+#bootScreen[data-phase="login"] .pbook-right .leaf-paper { overflow-y: hidden; }
+/* ============ 顶部导航 ============ */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--wood-deep);
+  color: var(--warm-paper);
+  border-bottom: 4px solid var(--ink-dark);
+  box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+}
+.topbar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.logo {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--warm-yellow);
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-shadow: 2px 2px 0 var(--ink-dark);
+}
+.logo-icon { width: 32px; height: 32px; image-rendering: pixelated; }
+.nav-menu {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+.nav-item {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 10px;
+  padding: 8px 12px;
+  color: var(--warm-paper);
+  background: transparent;
+  border: 3px solid transparent;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.1s steps(2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-item .nav-i { font-size: 14px; }
+.nav-item:hover { background: var(--wood); border-color: var(--warm-yellow); }
+.nav-item.active {
+  background: var(--warm-orange);
+  color: #fff;
+  border-color: var(--ink-dark);
+  box-shadow: 2px 2px 0 var(--ink-dark);
+}
+.topbar-right {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.lang-switch {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  padding: 8px 10px;
+  background: var(--warm-yellow);
+  color: var(--ink-dark);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: transform 0.08s steps(2);
+}
+.lang-switch:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 rgba(0,0,0,0.5); }
+.user-chip {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  background: var(--wood);
+  border: 2px solid var(--ink-dark);
+  padding: 6px 12px;
+  font-size: 16px;
+  color: var(--warm-paper);
+  font-family: 'VT323', monospace;
+}
+.user-chip .av {
+  width: 16px; height: 16px;
+  background: var(--berry);
+  border: 2px solid var(--ink-dark);
+}
+.user-chip .hi { font-family: 'Press Start 2P', monospace; font-size: 10px; color: var(--warm-yellow); }
+.logout-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  background: var(--berry);
+  border: 2px solid var(--ink-dark);
+  padding: 6px 8px;
+  cursor: pointer;
+  color: #fff;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+}
+.logout-btn:hover { background: var(--berry-deep); }
+
+/* ============ 容器 & 页面 ============ */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 30px 20px 80px;
+  position: relative;
+  z-index: 1;
+}
+.page { display: none; }
+.page.active { display: block; animation: pageIn 0.4s steps(6); }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 22px;
+  color: var(--ink-dark);
+  display: inline-block;
+  margin-bottom: 8px;
+  position: relative;
+  padding: 4px 0;
+}
+.page-title::after {
+  content:'';
+  display:block;
+  height: 4px;
+  background: var(--warm-orange);
+  margin-top: 8px;
+  box-shadow: 0 4px 0 var(--ink-dark);
+}
+.page-subtitle {
+  color: var(--ink2);
+  font-size: 18px;
+  margin: 18px 0 28px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+
+/* ============ 首页 Hero ============ */
+.farm-hero {
+  background: linear-gradient(180deg, var(--sky-light) 0%, var(--sky) 60%, var(--grass-light) 60%, var(--grass) 100%);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 6px 6px 0 var(--ink-dark);
+  padding: 40px 30px 60px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 30px;
+  min-height: 280px;
+}
+.hero-sun {
+  position: absolute;
+  top: 24px; right: 50px;
+  width: 50px; height: 50px;
+  background: var(--warm-yellow);
+  border: 4px solid var(--ink-dark);
+  box-shadow:
+    0 -12px 0 -2px var(--warm-yellow), 0 -12px 0 0 var(--ink-dark),
+    12px 0 0 -2px var(--warm-yellow), 12px 0 0 0 var(--ink-dark),
+    0 12px 0 -2px var(--warm-yellow), 0 12px 0 0 var(--ink-dark),
+    -12px 0 0 -2px var(--warm-yellow), -12px 0 0 0 var(--ink-dark);
+  animation: sunSpin 8s steps(8) infinite;
+}
+.hero-cloud {
+  position: absolute;
+  width: 60px; height: 18px;
+  background: #fff;
+  border: 3px solid var(--ink-dark);
+  animation: cloudFloat 12s steps(10) infinite;
+}
+.hero-cloud::before, .hero-cloud::after {
+  content:''; position:absolute;
+  background:#fff; border:3px solid var(--ink-dark); border-bottom: none;
+}
+.hero-cloud::before { width:20px; height:12px; left:8px; top:-12px; }
+.hero-cloud::after { width:20px; height:12px; right:8px; top:-12px; }
+.hero-cloud.small { transform: scale(0.7); }
+.hero-bird {
+  position: absolute;
+  top: 50px;
+  left: -30px;
+  width: 20px; height: 8px;
+  background: var(--ink-dark);
+  animation: birdFly 14s linear infinite;
+}
+.hero-bird::before {
+  content:'';
+  position:absolute;
+  left: -8px; top: -4px;
+  width: 8px; height: 4px;
+  background: var(--ink-dark);
+  animation: wingFlap 0.4s steps(2) infinite;
+}
+.hero-bird::after {
+  content:'';
+  position:absolute;
+  right: -8px; top: -4px;
+  width: 8px; height: 4px;
+  background: var(--ink-dark);
+  animation: wingFlap 0.4s steps(2) infinite reverse;
+}
+@keyframes birdFly {
+  0% { left: -30px; top: 50px; }
+  50% { top: 80px; }
+  100% { left: 110%; top: 40px; }
+}
+@keyframes wingFlap {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.hero-text {
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+}
+.hero-greet {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 13px;
+  background: var(--warm-paper);
+  display: inline-block;
+  padding: 6px 14px;
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  margin-bottom: 14px;
+  color: var(--ink-dark);
+  letter-spacing: 1px;
+}
+.hero-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 22px;
+  color: var(--ink-dark);
+  line-height: 1.7;
+  margin-bottom: 22px;
+  text-shadow: 3px 3px 0 var(--warm-paper);
+  letter-spacing: 1px;
+}
+.big-camera {
+  font-size: 14px;
+  padding: 16px 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--berry);
+  color: #fff;
+  animation: pulse 2s steps(4) infinite;
+}
+.big-camera:hover {
+  background: var(--berry-deep);
+  animation: none;
+}
+.big-camera .cam-icon {
+  display: inline-block;
+  width: 28px; height: 28px;
+}
+.big-camera .cam-icon svg { width:100%; height:100%; image-rendering: pixelated; }
+@keyframes pulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.hero-ground {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  z-index: 3;
+  pointer-events: none;
+}
+.hero-ground .hero-cat,
+.hero-ground .hero-peng,
+.hero-ground .feed-btn { pointer-events: auto; }
+.grass-tuft {
+  position: absolute;
+  bottom: 24px;
+  width: 14px; height: 10px;
+  background: var(--grass-deep);
+  border: 2px solid var(--ink-dark);
+}
+.grass-tuft::before {
+  content:'';
+  position:absolute;
+  top: -6px; left: 2px;
+  width: 4px; height: 6px;
+  background: var(--grass-deep);
+  border: 2px solid var(--ink-dark);
+  border-bottom: none;
+}
+.grass-tuft::after {
+  content:'';
+  position:absolute;
+  top: -6px; right: 2px;
+  width: 4px; height: 6px;
+  background: var(--grass-deep);
+  border: 2px solid var(--ink-dark);
+  border-bottom: none;
+}
+.hero-flower {
+  position: absolute;
+  bottom: 22px;
+  width: 14px; height: 14px;
+  background: var(--berry);
+  border: 2px solid var(--ink-dark);
+  animation: flowerSway 3s steps(6) infinite;
+}
+.hero-flower::before {
+  content:'';
+  position:absolute;
+  bottom: -10px; left: 50%;
+  transform: translateX(-50%);
+  width: 3px; height: 10px;
+  background: var(--grass-deep);
+}
+.hero-flower::after {
+  content:'';
+  position:absolute;
+  top: 4px; left: 4px;
+  width: 4px; height: 4px;
+  background: var(--warm-yellow);
+}
+.hero-flower.yellow { background: var(--warm-yellow); }
+.hero-flower.yellow::after { background: var(--berry); }
+.hero-flower.pink { background: var(--pink); }
+.hero-flower.pink::after { background: var(--warm-yellow); }
+
+/* ============ 四大入口 ============ */
+.quick-entries {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  margin-bottom: 30px;
+}
+.entry-card {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 6px 6px 0 var(--ink-dark);
+  padding: 22px 18px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
+  position: relative;
+  overflow: hidden;
+}
+.entry-card::before {
+  content:'';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--warm-yellow);
+}
+.entry-card.e1::before { background: var(--berry); }
+.entry-card.e2::before { background: var(--wood); }
+.entry-card.e3::before { background: var(--sky-deep); }
+.entry-card.e4::before { background: var(--grass-deep); }
+.entry-card:hover {
+  transform: translate(-3px,-3px);
+  box-shadow: 9px 9px 0 var(--ink-dark);
+}
+.entry-card:hover .entry-icon { animation: iconJump 0.5s steps(4); }
+.entry-icon {
+  width: 56px; height: 56px;
+  margin: 0 auto 14px;
+  animation: iconFloat 3s steps(6) infinite;
+}
+.entry-icon svg { width:100%; height:100%; image-rendering: pixelated; }
+@keyframes iconFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes iconJump {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px) rotate(-5deg); }
+  100% { transform: translateY(0); }
+}
+.entry-name {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: var(--ink-dark);
+}
+.entry-desc {
+  font-size: 16px;
+  color: var(--ink2);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+
+/* ============ Tip木牌 ============ */
+.tip-board {
+  background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood) 100%);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 5px 5px 0 var(--ink-dark);
+  padding: 22px 24px 22px 70px;
+  position: relative;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.tip-board::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0; bottom: 0;
+  background:
+    repeating-linear-gradient(90deg,
+      transparent 0 30px,
+      rgba(122,82,48,0.15) 30px 32px);
+  pointer-events: none;
+}
+.board-nail {
+  position: absolute;
+  top: 8px; left: 8px;
+  width: 8px; height: 8px;
+  background: var(--ink-dark);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--wood-deep);
+}
+.board-nail.right { left: auto; right: 8px; }
+.tip-icon {
+  position: absolute;
+  top: 50%; left: 18px;
+  transform: translateY(-50%);
+  width: 36px; height: 36px;
+  background: var(--warm-yellow);
+  border: 3px solid var(--ink-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 16px;
+  color: var(--ink-dark);
+  animation: tipPulse 1.5s steps(3) infinite;
+  z-index: 1;
+}
+@keyframes tipPulse {
+  0%,100% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-50%) scale(1.1) rotate(-5deg); }
+}
+.tip-content { position: relative; z-index: 1; }
+.tip-label {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  color: var(--ink-dark);
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+.tip-text {
+  font-size: 18px;
+  color: var(--ink);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  line-height: 1.5;
+}
+
+.api-status-bar {
+  background: var(--warm-yellow);
+  border: 3px dashed var(--warm-deep);
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--ink-dark);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  display: none;
+}
+.api-status-bar.show { display: block; }
+
+/* ============ 上传页 ============ */
+.upload-zone {
+  background: var(--warm-paper);
+  border: 4px dashed var(--ink-dark);
+  padding: 40px 30px;
+  text-align: center;
+  margin-bottom: 24px;
+  cursor: pointer;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.15s steps(3), border-color 0.15s steps(3);
+  position: relative;
+  overflow: hidden;
+}
+.upload-zone.dragover {
+  background: var(--warm-yellow);
+  border-color: var(--warm-deep);
+  border-style: solid;
+  animation: dragShake 0.3s steps(4) infinite;
+}
+@keyframes dragShake {
+  0%,100% { transform: translate(0,0); }
+  25% { transform: translate(-2px,1px); }
+  50% { transform: translate(2px,-1px); }
+  75% { transform: translate(-1px,2px); }
+}
+.upload-scarecrow {
+  width: 72px; height: 108px;
+  margin-bottom: 20px;
+  animation: floatY 2.5s steps(5) infinite;
+}
+.upload-scarecrow svg { width:100%; height:100%; image-rendering: pixelated; }
+@keyframes floatY {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.upload-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: var(--ink-dark);
+}
+.upload-hint {
+  font-size: 16px;
+  color: var(--ink2);
+  margin-bottom: 22px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+.upload-preview {
+  max-width: 280px;
+  flex: 1 1 240px;
+  margin: 0;
+  border: 4px solid var(--ink-dark);
+  box-shadow: 4px 4px 0 var(--ink-dark);
+  display: none;
+  position: relative;
+  align-self: flex-start;
+}
+.upload-preview.show { display: block; animation: previewIn 0.4s steps(5); }
+@keyframes previewIn {
+  0% { transform: scale(0.5) rotate(-3deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.upload-preview img { width:100%; display:block; }
+.preview-remove {
+  position: absolute;
+  top: -10px; right: -10px;
+  width: 28px; height: 28px;
+  background: var(--berry);
+  color: #fff;
+  border: 3px solid var(--ink-dark);
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  box-shadow: 2px 2px 0 var(--ink-dark);
+}
+.preview-remove:hover { background: var(--berry-deep); }
+.upload-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ===== 上传两栏:照片 + 当餐描述 ===== */
+.upload-main-row {
+  display: flex;
+  gap: 22px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto 18px;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+/* 没有图片时整行收起,只在有预览时展开 */
+.upload-main-row.has-image { }
+
+.meal-desc-box {
+  flex: 1 1 300px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 4px 4px 0 var(--ink-dark);
+  padding: 14px;
+}
+.meal-desc-label {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-dark);
+  margin-bottom: 10px;
+  display: block;
+}
+.meal-desc-input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  background: #fffdf5;
+  border: 3px solid var(--ink-dark);
+  padding: 10px 12px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--ink-dark);
+  box-sizing: border-box;
+  outline: none;
+}
+.meal-desc-input:focus { background: var(--warm-yellow); }
+.meal-desc-input::placeholder { color: #b09a78; }
+.meal-desc-hint {
+  margin-top: 8px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 15px;
+  color: var(--ink2);
+  line-height: 1.45;
+}
+
+/* ===== 进食心理报告 ===== */
+.psych-report {
+  margin: 4px 0 18px;
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 5px 5px 0 var(--ink-dark);
+  padding: 0 0 16px;
+  animation: previewIn 0.4s steps(5);
+  overflow: hidden;
+}
+.psych-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--grass);
+  color: var(--ink-dark);
+  padding: 10px 14px;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  border-bottom: 4px solid var(--ink-dark);
+}
+.psych-banner .banner-icon { font-size: 14px; }
+.psych-desc-quote {
+  margin: 14px 14px 0;
+  padding: 10px 12px;
+  background: #fffdf5;
+  border-left: 5px solid var(--grass-deep);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--ink2);
+  font-style: italic;
+}
+.psych-primary {
+  margin: 14px 14px 0;
+  padding: 12px;
+  background: var(--warm-yellow);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+}
+.psych-primary .pp-group {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--warm-deep);
+  margin-bottom: 6px;
+}
+.psych-primary .pp-name {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 14px;
+  color: var(--ink-dark);
+  margin-bottom: 8px;
+}
+.psych-primary .pp-desc {
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink-dark);
+}
+.psych-groups {
+  margin: 14px 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.psych-group {
+  border: 3px solid var(--ink-dark);
+  background: #fffdf5;
+}
+.psych-group-head {
+  background: var(--grass-light);
+  border-bottom: 3px solid var(--ink-dark);
+  padding: 6px 10px;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--ink-dark);
+}
+.psych-item {
+  padding: 9px 10px;
+  border-bottom: 2px dashed #e3d2ac;
+}
+.psych-item:last-child { border-bottom: none; }
+.psych-item .pi-name {
+  display: inline-block;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  color: var(--berry-deep);
+  margin-bottom: 5px;
+}
+.psych-item .pi-desc {
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+.psych-note {
+  margin: 14px 14px 0;
+  padding: 10px 12px;
+  background: #fffdf5;
+  border: 2px dashed var(--ink2);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+@media (max-width: 560px) {
+  .upload-main-row { flex-direction: column; align-items: center; }
+  .upload-preview { max-width: 100%; }
+}
+
+/* 识别中状态 */
+.recognize-status {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 5px 5px 0 var(--ink-dark);
+  padding: 28px 22px;
+  text-align: center;
+  margin-bottom: 22px;
+}
+.rs-icon {
+  width: 64px; height: 64px;
+  margin: 0 auto 14px;
+  position: relative;
+}
+.rs-spinner {
+  width: 100%; height: 100%;
+  border: 6px solid var(--warm-yellow);
+  border-top-color: var(--warm-orange);
+  border-right-color: var(--berry);
+  animation: rsSpin 1s steps(8) infinite;
+}
+@keyframes rsSpin {
+  to { transform: rotate(360deg); }
+}
+.rs-text {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 13px;
+  color: var(--ink-dark);
+  letter-spacing: 1px;
+}
+
+/* 食材清单面板 */
+.food-list-panel {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 5px 5px 0 var(--ink-dark);
+  padding: 22px;
+  margin-bottom: 22px;
+}
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.panel-h-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 14px;
+  color: var(--ink-dark);
+}
+.api-mode-tag {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  padding: 4px 8px;
+  border: 2px solid var(--ink-dark);
+  background: var(--grass-light);
+  color: var(--ink-dark);
+  letter-spacing: 1px;
+}
+.api-mode-tag.mock {
+  background: var(--warm-yellow);
+}
+.panel-hint {
+  font-size: 16px;
+  color: var(--ink2);
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  background: var(--warm-yellow);
+  border-left: 4px solid var(--warm-deep);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+.food-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+  min-height: 60px;
+}
+.food-item {
+  background: var(--warm-cream);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  animation: itemIn 0.3s steps(4);
+}
+@keyframes itemIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.food-item .fi-icon {
+  flex-shrink: 0;
+  width: 36px; height: 36px;
+  background: var(--warm-yellow);
+  border: 2px solid var(--ink-dark);
+}
+.food-item .fi-icon svg { width:100%; height:100%; image-rendering: pixelated; }
+.food-item .fi-info { flex: 1; min-width: 0; }
+.food-item .fi-name {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  color: var(--ink-dark);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.food-item .fi-meta {
+  font-size: 13px;
+  color: var(--ink2);
+  font-family: 'VT323', monospace;
+}
+.food-item .fi-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.food-item .fi-btn {
+  width: 22px; height: 22px;
+  background: var(--warm-orange);
+  border: 2px solid var(--ink-dark);
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: #fff;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.food-item .fi-btn:hover { background: var(--warm-deep); }
+.food-item .fi-btn.del { background: var(--berry); }
+.food-item .fi-btn.del:hover { background: var(--berry-deep); }
+.food-item .fi-serv {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  min-width: 28px;
+  text-align: center;
+  color: var(--ink-dark);
+}
+
+.search-add {
+  background: var(--warm-cream);
+  border: 3px solid var(--ink-dark);
+  padding: 14px;
+}
+.search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.search-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 14px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 18px;
+  background: var(--warm-paper);
+  border: 3px solid var(--ink-dark);
+  outline: none;
+}
+.search-input:focus { background: var(--warm-yellow); }
+.search-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.sr-card {
+  background: var(--warm-paper);
+  border: 2px solid var(--ink-dark);
+  padding: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.1s steps(2);
+}
+.sr-card:hover {
+  background: var(--warm-yellow);
+  transform: translate(-1px,-1px);
+  box-shadow: 2px 2px 0 var(--ink-dark);
+}
+.sr-card .sr-name {
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 16px;
+  color: var(--ink-dark);
+  margin-bottom: 2px;
+}
+.sr-card .sr-cal {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--ink2);
+}
+
+.panel-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* ============ 报告页 ============ */
+.report-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 920px) {
+  .report-grid { grid-template-columns: 1fr; }
+}
+.report-panel {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 6px 6px 0 var(--ink-dark);
+  position: relative;
+}
+.panel-banner {
+  background: var(--warm-orange);
+  color: #fff;
+  padding: 10px 18px;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 13px;
+  border-bottom: 4px solid var(--ink-dark);
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.panel-banner.physio { background: var(--berry); }
+.panel-banner.psy { background: var(--grass-deep); }
+.banner-icon {
+  display: inline-block;
+  width: 24px; height: 24px;
+  background: var(--warm-yellow);
+  border: 2px solid var(--ink-dark);
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-dark);
+  line-height: 1.4;
+}
+.left-panel, .right-panel { padding-bottom: 18px; }
+
+.meal-photo-wrap {
+  position: relative;
+  margin: 18px;
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  overflow: hidden;
+  background: var(--warm-cream);
+}
+.meal-photo {
+  width: 100%;
+  display: block;
+  image-rendering: auto;
+}
+.meal-photo-deco-corner {
+  position: absolute;
+  width: 16px; height: 16px;
+  background: var(--warm-yellow);
+  border: 3px solid var(--ink-dark);
+}
+.meal-photo-deco-corner.tl { top: -4px; left: -4px; border-bottom: none; border-right: none; }
+.meal-photo-deco-corner.tr { top: -4px; right: -4px; border-bottom: none; border-left: none; }
+.meal-photo-deco-corner.bl { bottom: -4px; left: -4px; border-top: none; border-right: none; }
+.meal-photo-deco-corner.br { bottom: -4px; right: -4px; border-top: none; border-left: none; }
+
+.cal-bigboard {
+  background: linear-gradient(180deg, var(--warm-yellow), #f0d896);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  margin: 0 18px 18px;
+  padding: 16px 18px;
+  text-align: center;
+  position: relative;
+}
+.cal-bigboard::before, .cal-bigboard::after {
+  content:'';
+  position:absolute;
+  top: 6px;
+  width: 6px; height: 6px;
+  background: var(--ink-dark);
+  border-radius: 50%;
+}
+.cal-bigboard::before { left: 6px; }
+.cal-bigboard::after { right: 6px; }
+.cal-label {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  color: var(--ink-dark);
+  margin-bottom: 6px;
+}
+.cal-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 32px;
+  color: var(--berry-deep);
+  margin-bottom: 6px;
+}
+.cal-num .cal-unit { font-size: 14px; color: var(--ink2); margin-left: 4px; }
+.cal-status {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  display: inline-block;
+  border: 2px solid var(--ink-dark);
+  background: var(--warm-paper);
+}
+.cal-status.warn { background: var(--berry); color: #fff; }
+.cal-status.good { background: var(--grass); color: #fff; }
+
+.food-summary, .macro-section, .micro-section {
+  margin: 0 18px 18px;
+}
+.fs-title, .ms-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  padding-left: 10px;
+  border-left: 4px solid var(--warm-orange);
+  margin-bottom: 10px;
+  color: var(--ink-dark);
+}
+.fs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.fs-item {
+  background: var(--warm-cream);
+  border: 2px solid var(--ink-dark);
+  padding: 4px 10px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 14px;
+  color: var(--ink-dark);
+}
+.fs-item .fs-x {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--warm-deep);
+  margin-left: 4px;
+}
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.macro-cell {
+  background: var(--warm-cream);
+  border: 3px solid var(--ink-dark);
+  padding: 10px 8px;
+  text-align: center;
+}
+.macro-cell .m-lab {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 10px;
+  color: var(--ink-dark);
+  margin-bottom: 5px;
+}
+.macro-cell .m-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: var(--ink-dark);
+}
+.macro-cell.protein .m-num { color: var(--grass-deep); }
+.macro-cell.carb .m-num { color: var(--warm-deep); }
+.macro-cell.fat .m-num { color: var(--berry-deep); }
+.m-bar {
+  width: 100%; height: 8px;
+  background: var(--warm-paper);
+  border: 2px solid var(--ink-dark);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.m-bar-fill {
+  height: 100%; width: 0%;
+  background: var(--grass);
+  transition: width 0.8s steps(20);
+}
+.macro-cell.protein .m-bar-fill { background: var(--grass); }
+.macro-cell.carb .m-bar-fill { background: var(--warm-orange); }
+.macro-cell.fat .m-bar-fill { background: var(--berry); }
+.m-pct {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--ink2);
+}
+
+.micro-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.micro-cell {
+  background: var(--warm-cream);
+  border: 2px solid var(--ink-dark);
+  padding: 6px 8px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+.micro-cell .mc-name { color: var(--ink2); }
+.micro-cell .mc-val { color: var(--ink-dark); font-weight: bold; }
+
+.data-source {
+  margin: 0 18px;
+  padding: 10px 12px;
+  background: var(--warm-cream);
+  border-left: 4px solid var(--wood-deep);
+  font-size: 14px;
+  color: var(--ink2);
+  line-height: 1.6;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+
+/* 右侧心理面板 */
+.meal-cat-tag {
+  display: inline-block;
+  margin: 18px 18px 0;
+  background: var(--warm-orange);
+  color: #fff;
+  padding: 6px 14px;
+  border: 3px solid var(--ink-dark);
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 12px;
+  box-shadow: 3px 3px 0 var(--ink-dark);
+}
+
+.motive-badge {
+  margin: 16px 18px;
+  background: var(--lav);
+  border: 3px solid var(--ink-dark);
+  padding: 16px;
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  text-align: center;
+}
+.motive-lab {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 10px;
+  margin-bottom: 10px;
+  color: var(--ink-dark);
+  letter-spacing: 1px;
+}
+.motive-tag {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 15px;
+  background: var(--warm-paper);
+  display: inline-block;
+  padding: 8px 16px;
+  border: 3px solid var(--ink-dark);
+  color: var(--ink-dark);
+  margin-bottom: 10px;
+}
+.motive-desc {
+  font-size: 16px;
+  color: var(--ink-dark);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  line-height: 1.5;
+  padding: 0 4px;
+}
+
+.psy-score-box {
+  margin: 0 18px 14px;
+  padding: 12px 14px;
+  background: var(--warm-cream);
+  border: 3px solid var(--ink-dark);
+}
+.psy-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+.ps-label { font-size: 17px; color: var(--ink2); }
+.ps-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: var(--ink-dark);
+}
+.ps-bar {
+  width: 100%; height: 18px;
+  background: var(--warm-paper);
+  border: 2px solid var(--ink-dark);
+  overflow: hidden;
+}
+.ps-bar-fill {
+  height: 100%; width: 0%;
+  background: var(--grass);
+  transition: width 1s steps(20);
+}
+.ps-bar.good .ps-bar-fill { background: repeating-linear-gradient(90deg, var(--grass) 0 10px, var(--grass-deep) 10px 14px); }
+.ps-bar.stress .ps-bar-fill { background: repeating-linear-gradient(90deg, var(--berry) 0 10px, var(--berry-deep) 10px 14px); }
+.ps-bar.balance .ps-bar-fill { background: repeating-linear-gradient(90deg, var(--warm-orange) 0 10px, var(--warm-deep) 10px 14px); }
+
+.analysis-scroll {
+  margin: 16px 18px;
+  padding: 18px;
+  background: var(--warm-paper);
+  border: 3px solid var(--ink-dark);
+  position: relative;
+}
+.scroll-corner {
+  position: absolute;
+  width: 10px; height: 10px;
+  background: var(--ink-dark);
+}
+.scroll-corner.tl { top:-3px; left:-3px; }
+.scroll-corner.tr { top:-3px; right:-3px; }
+.scroll-corner.bl { bottom:-3px; left:-3px; }
+.scroll-corner.br { bottom:-3px; right:-3px; }
+.analysis-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 12px;
+  color: var(--ink-dark);
+  padding-bottom: 8px;
+  border-bottom: 2px dashed var(--wood);
+}
+.analysis-text {
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--ink-dark);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  min-height: 60px;
+}
+.analysis-text .typing-cursor {
+  display: inline-block;
+  width: 8px; height: 18px;
+  background: var(--ink-dark);
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: cursorBlink 0.6s steps(2) infinite;
+}
+@keyframes cursorBlink {
+  0%,49% { opacity: 1; }
+  50%,100% { opacity: 0; }
+}
+
+.tips-list {
+  margin: 0 18px 14px;
+}
+.tip-item {
+  background: var(--warm-yellow);
+  border: 2px solid var(--ink-dark);
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 16px;
+  color: var(--ink-dark);
+  display: flex;
+  gap: 8px;
+  animation: tipIn 0.4s steps(5);
+}
+@keyframes tipIn {
+  from { transform: translateX(-10px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.tip-item::before {
+  content: '✦';
+  flex-shrink: 0;
+  color: var(--warm-deep);
+}
+
+.report-actions {
+  display: flex;
+  gap: 12px;
+  margin: 18px 18px 0;
+  flex-wrap: wrap;
+}
+.report-actions .pbtn { flex: 1; min-width: 130px; }
+
+/* ============ 鼓励弹窗 ============ */
+.encourage-modal {
+  position: fixed; inset: 0;
+  background: rgba(45,36,24,0);
+  z-index: 1500;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  transition: background 0.4s steps(8);
+}
+.encourage-modal.active {
+  display: flex;
+  background: rgba(45,36,24,0.75);
+}
+.encourage-box {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 8px 8px 0 #000;
+  padding: 30px 28px 24px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  animation: mPop 0.5s steps(6);
+}
+@keyframes mPop {
+  0% { transform: scale(0.3) rotate(-5deg); opacity: 0; }
+  60% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.encourage-mascot {
+  width: 72px; height: 72px;
+  margin: 0 auto 16px;
+  animation: heartBeat 1.2s steps(3) infinite;
+}
+.encourage-mascot svg { width:100%; height:100%; image-rendering: pixelated; }
+@keyframes heartBeat {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+.encourage-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  margin-bottom: 14px;
+  color: var(--ink-dark);
+  letter-spacing: 1px;
+}
+.encourage-text {
+  font-size: 20px;
+  line-height: 1.7;
+  margin-bottom: 18px;
+  min-height: 56px;
+  padding: 0 8px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  color: var(--ink-dark);
+}
+.encourage-bar {
+  width: 100%; height: 8px;
+  background: var(--warm-cream);
+  border: 2px solid var(--ink-dark);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.encourage-bar-fill {
+  height: 100%; width: 100%;
+  background: repeating-linear-gradient(90deg, var(--berry) 0 8px, var(--berry-deep) 8px 12px);
+  transition: width 1s linear;
+}
+.encourage-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.encourage-count {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: var(--berry-deep);
+}
+
+/* ============ 历史页 ============ */
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.h-card {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 4px 4px 0 var(--ink-dark);
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.1s steps(2);
+  position: relative;
+}
+.h-card:hover {
+  transform: translate(-2px,-2px);
+  box-shadow: 6px 6px 0 var(--ink-dark);
+}
+.h-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--warm-cream);
+  border: 3px solid var(--ink-dark);
+  margin-bottom: 10px;
+  object-fit: cover;
+  image-rendering: auto;
+}
+.h-date {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  margin-bottom: 5px;
+  color: var(--ink2);
+}
+.h-info {
+  font-size: 14px;
+  color: var(--ink-dark);
+  line-height: 1.5;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  margin-bottom: 4px;
+}
+.h-tag {
+  display: inline-block;
+  background: var(--warm-yellow);
+  padding: 2px 8px;
+  border: 2px solid var(--ink-dark);
+  font-size: 12px;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  margin-top: 4px;
+  color: var(--ink-dark);
+}
+.h-del {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 24px; height: 24px;
+  background: var(--berry);
+  color: #fff;
+  border: 2px solid var(--ink-dark);
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+}
+.h-del:hover { background: var(--berry-deep); }
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink2);
+  font-size: 20px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+.empty-mascot {
+  width: 96px; height: 96px;
+  margin: 0 auto 18px;
+  animation: floatY 2s steps(4) infinite;
+}
+.empty-mascot svg { width:100%; height:100%; image-rendering: pixelated; }
+
+/* ============ 月报页 ============ */
+.month-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.stat-card {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 4px 4px 0 var(--ink-dark);
+  padding: 14px;
+}
+.stat-card.pink { background: linear-gradient(180deg, var(--pink-soft), var(--warm-paper)); }
+.stat-card.mint { background: linear-gradient(180deg, var(--grass-light), var(--warm-paper)); }
+.stat-card.sky { background: linear-gradient(180deg, var(--sky-light), var(--warm-paper)); }
+.stat-card.lav { background: linear-gradient(180deg, var(--lav), var(--warm-paper)); }
+.stat-card-lab {
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 15px;
+  color: var(--ink2);
+  margin-bottom: 5px;
+}
+.stat-card-num {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  margin-bottom: 4px;
+  color: var(--ink-dark);
+}
+.stat-card-trend {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--ink2);
+}
+
+.chart-block {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 5px 5px 0 var(--ink-dark);
+  padding: 18px;
+  margin-bottom: 18px;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chart-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 12px;
+  padding-left: 10px;
+  border-left: 5px solid var(--berry);
+  color: var(--ink-dark);
+}
+.chart-legend {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--ink2);
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+.legend-dot {
+  display: inline-block;
+  width: 12px; height: 12px;
+  margin-right: 4px;
+  vertical-align: middle;
+  border: 2px solid var(--ink-dark);
+}
+canvas.chart {
+  width: 100%;
+  height: 200px;
+  image-rendering: pixelated;
+  background: var(--warm-cream);
+  border: 3px solid var(--ink-dark);
+  display: block;
+}
+.month-summary {
+  background: var(--grass-light);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 5px 5px 0 var(--ink-dark);
+  padding: 22px;
+}
+.month-summary h3 {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 13px;
+  margin-bottom: 12px;
+  color: var(--ink-dark);
+}
+.month-summary p {
+  font-size: 18px;
+  line-height: 1.8;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  color: var(--ink-dark);
+}
+
+/* ============ 方案页 ============ */
+.plan-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+.plan-tab {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  padding: 11px 16px;
+  background: var(--warm-paper);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  cursor: pointer;
+  letter-spacing: 1px;
+  color: var(--ink-dark);
+}
+.plan-tab:hover { background: var(--warm-yellow); }
+.plan-tab.active {
+  background: var(--berry);
+  color: #fff;
+  transform: translate(1px,1px);
+  box-shadow: 2px 2px 0 var(--ink-dark);
+}
+.plan-content { display: none; }
+.plan-content.active { display: block; animation: pageIn 0.4s steps(5); }
+.plan-section {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 5px 5px 0 var(--ink-dark);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.plan-section-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 13px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink-dark);
+}
+.plan-icon {
+  width: 24px; height: 24px;
+  background: var(--berry);
+  border: 3px solid var(--ink-dark);
+}
+.plan-icon.psy { background: var(--lav); }
+.plan-icon.act { background: var(--grass); }
+.plan-section p {
+  font-size: 17px;
+  line-height: 1.8;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  color: var(--ink-dark);
+}
+.plan-section p b {
+  background: var(--warm-yellow);
+  padding: 0 4px;
+}
+.plan-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 8px;
+}
+.plan-list li {
+  padding: 10px 0 10px 28px;
+  border-bottom: 2px dashed var(--wood-light);
+  position: relative;
+  font-size: 17px;
+  line-height: 1.7;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  color: var(--ink-dark);
+}
+.plan-list li::before {
+  content:'';
+  position: absolute;
+  left: 0; top: 18px;
+  width: 12px; height: 12px;
+  background: var(--grass-deep);
+  border: 2px solid var(--ink-dark);
+}
+.plan-list li:last-child { border-bottom: none; }
+.plan-list li b {
+  background: var(--warm-yellow);
+  padding: 0 4px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+}
+
+/* ============ 全局加载层 ============ */
+.g-loading {
+  position: fixed; inset: 0;
+  background: rgba(45,36,24,0.7);
+  z-index: 2000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.g-loading.active { display: flex; }
+.g-load-box {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 5px 5px 0 #000;
+  padding: 26px 32px;
+  text-align: center;
+}
+.g-spinner {
+  width: 56px; height: 56px;
+  margin: 0 auto 14px;
+  position: relative;
+}
+.gs-seg {
+  position: absolute;
+  width: 14px; height: 14px;
+  background: var(--berry);
+  border: 2px solid var(--ink-dark);
+}
+.gs-seg:nth-child(1) { top: 0; left: 21px; animation: segAnim 1s steps(4) infinite 0s; }
+.gs-seg:nth-child(2) { top: 21px; left: 42px; animation: segAnim 1s steps(4) infinite 0.25s; }
+.gs-seg:nth-child(3) { top: 42px; left: 21px; animation: segAnim 1s steps(4) infinite 0.5s; }
+.gs-seg:nth-child(4) { top: 21px; left: 0; animation: segAnim 1s steps(4) infinite 0.75s; }
+@keyframes segAnim {
+  0% { background: var(--berry); transform: scale(1); }
+  50% { background: var(--warm-yellow); transform: scale(1.3); }
+  100% { background: var(--berry); transform: scale(1); }
+}
+.g-load-text {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 12px;
+  color: var(--ink-dark);
+}
+
+/* ============ Toast ============ */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--ink-dark);
+  color: var(--warm-paper);
+  padding: 12px 22px;
+  border: 3px solid var(--ink-dark);
+  box-shadow: 4px 4px 0 #000;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  z-index: 3000;
+  opacity: 0;
+  transition: all 0.3s steps(5);
+  letter-spacing: 1px;
+  max-width: 90%;
+  text-align: center;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.err { background: var(--berry-deep); }
+.toast.ok { background: var(--grass-deep); }
+
+/* ============ Footer ============ */
+.footer {
+  margin-top: 60px;
+  position: relative;
+}
+.footer-fence {
+  height: 30px;
+  background:
+    linear-gradient(90deg,
+      var(--wood-deep) 0 6px,
+      transparent 6px 30px,
+      var(--wood-deep) 30px 36px,
+      transparent 36px 60px) 0 0 / 60px 30px,
+    var(--wood-light);
+  border-top: 4px solid var(--ink-dark);
+  border-bottom: 4px solid var(--ink-dark);
+}
+.footer-text {
+  background: var(--grass-deep);
+  color: var(--warm-paper);
+  text-align: center;
+  padding: 18px;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+/* ============ 滚动条 ============ */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--warm-cream); border-left: 2px solid var(--ink-dark); }
+::-webkit-scrollbar-thumb { background: var(--wood); border: 2px solid var(--warm-cream); }
+::-webkit-scrollbar-thumb:hover { background: var(--wood-deep); }
+
+/* ============ 响应式 ============ */
+@media (max-width: 768px) {
+  .hero-title { font-size: 16px; }
+  .page-title { font-size: 17px; }
+  .logo { font-size: 11px; }
+  .logo-icon { width: 24px; height: 24px; }
+  .nav-item { font-size: 9px; padding: 6px 8px; gap: 3px; }
+  .nav-item .nav-i { font-size: 12px; }
+  .pbtn { font-size: 11px; padding: 10px 16px; }
+  .big-camera { font-size: 12px; padding: 12px 20px; }
+  .container { padding: 20px 12px 60px; }
+  .topbar-inner { padding: 8px 12px; }
+  .auth-card { padding: 28px 20px 22px; }
+  .auth-sign { margin-top: -56px; width: 64px; height: 64px; }
+  .lang-switch { font-size: 9px; padding: 6px 8px; }
+  .user-chip { font-size: 14px; padding: 4px 8px; }
+  .user-chip .hi { font-size: 9px; }
+  .logout-btn { font-size: 8px; padding: 4px 6px; }
+  .farm-hero { padding: 30px 20px 50px; min-height: 240px; }
+  .hero-sun { width: 36px; height: 36px; top: 16px; right: 20px; }
+  .cal-num { font-size: 24px; }
+  .macro-grid { gap: 4px; }
+  .macro-cell { padding: 8px 4px; }
+  .macro-cell .m-num { font-size: 12px; }
+  .micro-grid { grid-template-columns: repeat(2, 1fr); }
+  .meal-photo-wrap, .cal-bigboard, .food-summary, .macro-section, .micro-section,
+  .meal-cat-tag, .motive-badge, .psy-score-box, .analysis-scroll, .tips-list,
+  .data-source, .report-actions { margin-left: 12px; margin-right: 12px; }
+}
+@media (max-width: 480px) {
+  .hero-title { font-size: 14px; }
+  .nav-menu { width: 100%; order: 3; justify-content: space-around; }
+  .topbar-right { width: 100%; justify-content: space-between; }
+  .quick-entries { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .entry-card { padding: 16px 12px; }
+  .entry-name { font-size: 11px; }
+  .entry-desc { font-size: 13px; }
+}
+
+/* ============================================
+   ★ 食味日记 UI 升级 ★
+   食材新卡片 + 弹窗 + 企鹅 + 星星 + 打卡 + 成就
+============================================ */
+
+/* === 惊喜提示行 === */
+.surprise-tip {
+  background: var(--pink);
+  border: 2px solid var(--ink-dark);
+  padding: 8px 12px;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 18px;
+  color: #fff;
+  margin: 0 0 14px;
+  text-shadow: 1px 1px 0 var(--ink-dark);
+  text-align: center;
+  animation: hintPulse 1.6s steps(2) infinite;
+}
+.surprise-tip .blink {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  animation: blink 1s steps(2) infinite;
+  display: inline-block;
+  margin: 0 6px;
+}
+@keyframes hintPulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.3; }
+}
+
+/* === 食材卡片 (新版纵向) === */
+.food-items {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.food-item {
+  background: var(--warm-paper);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform .15s steps(3), box-shadow .15s steps(3);
+  animation: itemIn 0.3s steps(4);
+}
+.food-item:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink-dark);
+}
+.food-item.shake {
+  animation: shakePop 0.5s steps(8);
+}
+@keyframes shakePop {
+  0%   { transform: scale(1) translate(0, 0); }
+  15%  { transform: scale(1.15) translate(-3px, -2px); }
+  30%  { transform: scale(1.12) translate(3px, -2px); }
+  45%  { transform: scale(1.15) translate(-2px, 3px); }
+  60%  { transform: scale(1.12) translate(2px, 2px); }
+  75%  { transform: scale(1.08) translate(-1px, -1px); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+
+/* 分类头部色块 */
+.food-item .fi-header {
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 3px solid var(--ink-dark);
+  background: var(--warm-yellow);
+}
+.food-item.cat-grain  .fi-header { background: var(--warm-yellow); }
+.food-item.cat-meat   .fi-header { background: var(--berry); }
+.food-item.cat-veg    .fi-header { background: var(--grass); }
+.food-item.cat-sea    .fi-header { background: var(--sky); }
+.food-item.cat-fruit  .fi-header { background: var(--pink); }
+.food-item.cat-dairy  .fi-header { background: var(--warm-cream); }
+.food-item.cat-light  .fi-header { background: var(--grass-light); }
+.food-item.cat-fried  .fi-header { background: var(--warm-orange); }
+.food-item.cat-sweet  .fi-header { background: var(--lav); }
+.food-item.cat-drink  .fi-header { background: var(--sky-light); }
+.food-item.cat-dish   .fi-header { background: var(--wood-light); }
+
+/* 头部内的图标 + 名字 */
+.food-item .fi-icon {
+  width: 28px; height: 28px;
+  background: var(--warm-cream);
+  border: 2px solid var(--ink-dark);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.food-item .fi-icon svg { width: 100%; height: 100%; image-rendering: pixelated; }
+.food-item .fi-name {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 13px;
+  color: var(--ink-dark);
+  line-height: 1.4;
+  flex: 1;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 分类标签条 */
+.food-item .fi-cat-label {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--wood-dark);
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border-bottom: 2px dashed var(--wood-dark);
+}
+
+/* 卡片主体 */
+.food-item .fi-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.food-item .fi-meta-row {
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  color: var(--ink);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.food-item .fi-meta-label { color: var(--ink2); }
+.food-item .fi-serv-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: var(--warm-cream);
+  border: 2px solid var(--ink-dark);
+  padding: 6px 8px;
+}
+.food-item .fi-serv-label {
+  font-family: 'VT323', monospace;
+  font-size: 15px;
+  color: var(--wood-dark);
+}
+.food-item .fi-serv-ctrls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.food-item .fi-btn {
+  width: 26px; height: 26px;
+  background: var(--warm-orange);
+  border: 2px solid var(--ink-dark);
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #fff;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.food-item .fi-btn:hover { background: var(--warm-deep); }
+.food-item .fi-btn.fi-del {
+  background: var(--berry);
+  width: 100%;
+  margin-top: 4px;
+}
+.food-item .fi-btn.fi-del:hover { background: var(--berry-deep); }
+.food-item .fi-serv {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  min-width: 30px;
+  text-align: center;
+  color: var(--ink-dark);
+}
+
+/* === 星星特效 === */
+.sparkle-star {
+  position: fixed;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  color: var(--warm-yellow);
+  text-shadow: 1px 1px 0 var(--warm-deep), 2px 2px 0 var(--ink-dark);
+  pointer-events: none;
+  animation: starPop 1s steps(10) forwards;
+  z-index: 9999;
+}
+@keyframes starPop {
+  0%   { transform: scale(0) rotate(0deg); opacity: 0; }
+  50%  { transform: scale(1.4) rotate(180deg); opacity: 1; }
+  100% { transform: scale(0) rotate(360deg) translate(var(--tx), var(--ty)); opacity: 0; }
+}
+
+/* === 食材详情弹窗 === */
+.food-tip-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 36, 24, 0.55);
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.food-tip-backdrop.show { display: flex; }
+.food-tip-card {
+  background: var(--warm-orange);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 6px 6px 0 var(--ink-dark);
+  width: 320px;
+  max-width: 90vw;
+  position: relative;
+  animation: modalIn 0.35s cubic-bezier(.34, 1.56, .64, 1);
+}
+@keyframes modalIn {
+  0%   { transform: scale(0.4) rotate(-3deg); opacity: 0; }
+  60%  { transform: scale(1.08) rotate(1deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.food-tip-card .ft-head {
+  padding: 10px 14px;
+  border-bottom: 4px solid var(--ink-dark);
+}
+.food-tip-card .ft-name {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 16px;
+  color: var(--ink-dark);
+  line-height: 1.3;
+}
+.food-tip-card .ft-cat {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: var(--grass-dark);
+  margin-top: 4px;
+  text-shadow: 1px 1px 0 var(--ink-dark);
+}
+.food-tip-card .ft-body { padding: 14px; }
+.food-tip-card .ft-desc {
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: var(--ink-dark);
+  line-height: 1.4;
+  margin-bottom: 12px;
+  background: var(--warm-paper);
+  border: 2px solid var(--ink-dark);
+  padding: 8px 10px;
+}
+.food-tip-card .ft-nutri {
+  background: var(--warm-paper);
+  border: 2px solid var(--ink-dark);
+  padding: 10px;
+}
+.food-tip-card .ft-nutri-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  color: var(--wood-dark);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed var(--wood-dark);
+}
+.food-tip-card .ft-stat {
+  font-family: 'VT323', monospace;
+  font-size: 17px;
+  color: var(--ink-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 5px 0;
+}
+.food-tip-card .ft-ico {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  width: 28px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.ft-ico.ico-cal  { background: var(--berry); }
+.ft-ico.ico-pro  { background: var(--berry-deep); }
+.ft-ico.ico-carb { background: var(--warm-orange); }
+.ft-ico.ico-fat  { background: var(--warm-yellow); color: var(--ink-dark); }
+.food-tip-card .ft-lab { flex: 1; }
+.food-tip-card .ft-val {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  color: var(--ink-dark);
+}
+.food-tip-card .ft-close {
+  position: absolute;
+  top: -12px; right: -12px;
+  width: 28px; height: 28px;
+  background: var(--berry);
+  border: 3px solid var(--ink-dark);
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0 var(--ink-dark);
+  z-index: 2;
+}
+.food-tip-card .ft-close:hover { background: var(--berry-deep); }
+
+/* 像素小企鹅 */
+.food-tip-card .ft-pingu {
+  position: absolute;
+  bottom: -14px; right: -8px;
+  width: 44px; height: 52px;
+  image-rendering: pixelated;
+  animation: pinguBob 1.2s steps(2) infinite;
+}
+@keyframes pinguBob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50%      { transform: translateY(-4px) rotate(4deg); }
+}
+
+/* ============================================
+   方案页 · 打卡式
+============================================ */
+
+/* 进度条卡片 */
+.plan-progress-card {
+  background: var(--warm-paper);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.plan-progress-label {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  color: var(--ink-dark);
+  white-space: nowrap;
+}
+.plan-progress-bar {
+  flex: 1;
+  height: 18px;
+  background: var(--warm-cream);
+  border: 2px solid var(--ink-dark);
+  position: relative;
+  overflow: hidden;
+}
+.plan-progress-fill {
+  height: 100%;
+  background: var(--grass);
+  border-right: 2px solid var(--ink-dark);
+  transition: width 0.4s steps(8);
+  position: relative;
+}
+.plan-progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 6px;
+  background: var(--grass-light);
+}
+.plan-progress-count {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: var(--ink-dark);
+  min-width: 60px;
+  text-align: right;
+}
+.plan-reset-btn {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  color: var(--ink2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.plan-reset-btn:hover { color: var(--berry); }
+
+/* 打卡项 */
+.plan-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 6px;
+  border-bottom: 1px dashed #d4c4a0;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 17px;
+  color: var(--ink-dark);
+  line-height: 1.5;
+  position: relative;
+}
+.plan-check-item:last-child { border-bottom: none; }
+.plan-check-item:hover { background: var(--warm-cream); }
+.plan-check-item.done {
+  color: #7a8a6a;
+  background: #eef5e0;
+}
+.plan-check-item.done .pc-text {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--grass);
+}
+.pc-box {
+  width: 22px; height: 22px;
+  background: var(--warm-cream);
+  border: 3px solid var(--ink-dark);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.15s steps(2);
+}
+.plan-check-item.done .pc-box { background: var(--grass); }
+.pc-mark {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  color: #fff;
+  opacity: 0;
+  transform: scale(0);
+  transition: transform 0.2s steps(4), opacity 0.15s;
+}
+.plan-check-item.done .pc-mark {
+  opacity: 1;
+  transform: scale(1);
+}
+.pc-text { flex: 1; }
+.pc-text b {
+  background: var(--warm-yellow);
+  padding: 1px 4px;
+  color: var(--ink-dark);
+}
+.plan-check-item.done .pc-text b { background: var(--grass-light); }
+
+/* 成就弹窗 */
+.achievement-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(45, 36, 24, 0.6);
+  z-index: 9500;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.achievement-backdrop.show { display: flex; }
+.achievement-card {
+  background: var(--warm-yellow);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 6px 6px 0 var(--ink-dark);
+  width: 360px;
+  max-width: 90vw;
+  padding: 24px;
+  text-align: center;
+  animation: achIn 0.4s cubic-bezier(.34, 1.56, .64, 1);
+  position: relative;
+}
+@keyframes achIn {
+  0%   { transform: scale(0.3) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(1.12) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.achievement-card .ach-trophy {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 56px;
+  color: var(--warm-deep);
+  text-shadow: 3px 3px 0 var(--ink-dark);
+  animation: trophyBob 1s steps(2) infinite;
+  margin-bottom: 10px;
+}
+@keyframes trophyBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.achievement-card .ach-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 18px;
+  color: var(--ink-dark);
+  margin-bottom: 10px;
+}
+.achievement-card .ach-sub {
+  font-family: 'VT323', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 18px;
+  color: var(--wood-dark);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+.achievement-card .ach-btn {
+  background: var(--grass);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  color: #fff;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 13px;
+  padding: 10px 22px;
+  cursor: pointer;
+  text-shadow: 1px 1px 0 var(--ink-dark);
+}
+.achievement-card .ach-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--ink-dark);
+}
+
+/* === 小屏适配 === */
+@media (max-width: 600px) {
+  .food-items { grid-template-columns: 1fr 1fr; }
+  .plan-progress-card { flex-wrap: wrap; }
+  .plan-progress-bar { order: 99; width: 100%; flex: 0 0 100%; }
+  .achievement-card { padding: 18px; }
+  .achievement-card .ach-trophy { font-size: 44px; }
+  .achievement-card .ach-title { font-size: 15px; }
+}
+
+/* ============ 首页随机动作小白猫 ============ */
+.hero-cat {
+  position: absolute;
+  bottom: 14px;
+  left: 8%;
+  width: 64px; height: 64px;
+  z-index: 8;
+  cursor: pointer;
+  transition: left 4.5s cubic-bezier(.37,.01,.4,1), bottom 0.5s steps(6);
+  image-rendering: pixelated;
+}
+
+/* ====== 投喂小伙伴 ====== */
+.feed-btn {
+  position: absolute;
+  right: 4%; bottom: 30px;
+  z-index: 9;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  background: var(--warm-paper);
+  border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  cursor: pointer;
+  font-family: 'Press Start 2P','ZCOOL QingKe HuangYou', monospace;
+  font-size: 10px; color: var(--ink-dark);
+  transition: transform 0.1s steps(2);
+}
+.feed-btn:hover { transform: translate(-1px,-1px); }
+.feed-btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink-dark); }
+.feed-btn .feed-fish { width: 20px; height: 12px; display:inline-block; }
+.feed-btn .feed-fish svg { width:100%; height:100%; image-rendering: pixelated; display:block; }
+.feed-btn.active {
+  background: var(--warm-yellow);
+  animation: feedPulse 0.8s steps(2) infinite;
+}
+@keyframes feedPulse {
+  0%,100% { box-shadow: 3px 3px 0 var(--ink-dark); }
+  50%     { box-shadow: 3px 3px 0 var(--berry); }
+}
+/* 喂食模式:在 hero 区域光标变成小鱼干 */
+.farm-hero.feed-mode { cursor: url('feed-cursor.png') 6 8, crosshair; }
+.farm-hero.feed-mode .hero-cat,
+.farm-hero.feed-mode .hero-peng { cursor: url('feed-cursor.png') 6 8, pointer; }
+.farm-hero.feed-mode .hero-cat,
+.farm-hero.feed-mode .hero-peng { animation: feedBeckon 0.6s steps(2) infinite; }
+@keyframes feedBeckon {
+  0%,100% { filter: none; }
+  50%     { filter: brightness(1.12); }
+}
+/* 吃东西时小幅雀跃 */
+.hero-cat[data-feed="1"] .cat-body,
+.hero-peng[data-feed="1"] .peng-body { animation: feedNom 0.26s ease-in-out 5; }
+@keyframes feedNom {
+  0%,100% { transform: translateY(0) scaleY(1); }
+  50%     { transform: translateY(-3px) scaleY(0.94); }
+}
+/* 冒爱心 */
+.feed-heart {
+  position: absolute;
+  z-index: 16;
+  font-size: 16px; color: var(--berry);
+  pointer-events: none;
+  text-shadow: 1px 1px 0 #fff;
+  animation: heartFloat 1.1s ease-out forwards;
+}
+@keyframes heartFloat {
+  0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(-40px) scale(1.1); opacity: 0; }
+}
+.hero-cat .cat-body { width: 100%; height: 100%; transform-origin: bottom center; }
+.hero-cat .cat-body svg { width: 100%; height: 100%; image-rendering: pixelated; display:block; }
+.cat-shadow {
+  position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+  width: 38px; height: 7px; background: rgba(45,36,24,0.22);
+  border-radius: 50%;
+}
+.hero-cat[data-flip="1"] .cat-body { transform: scaleX(-1); }
+
+/* 尾巴轻摆(常驻) */
+.cat-tail { transform-origin: 27px 20px; animation: catTail 1.4s steps(4) infinite; }
+@keyframes catTail {
+  0%,100% { transform: rotate(0deg); }
+  50%     { transform: rotate(-12deg); }
+}
+
+/* 眨眼:默认睁眼,闭眼层隐藏 */
+.cat-eyes-closed { opacity: 0; }
+.hero-cat[data-blink="1"] .cat-eyes { opacity: 0; }
+.hero-cat[data-blink="1"] .cat-eyes-closed { opacity: 1; }
+
+/* —— 动作:idle —— */
+.hero-cat[data-act="idle"] .cat-body { animation: catBreathe 2.4s steps(6) infinite; }
+@keyframes catBreathe {
+  0%,100% { transform: translateY(0) scaleY(1); }
+  50%     { transform: translateY(-1px) scaleY(1.03); }
+}
+
+/* —— 动作:sit (头微歪) —— */
+.hero-cat[data-act="sit"] .cat-head { animation: catTilt 2s steps(4) infinite; transform-origin: 14px 16px; }
+@keyframes catTilt {
+  0%,100% { transform: rotate(0deg); }
+  50%     { transform: rotate(-6deg); }
+}
+
+/* —— 动作:jump (蹦跳) —— */
+.hero-cat[data-act="jump"] .cat-body { animation: catJump 0.6s steps(6) 2; }
+@keyframes catJump {
+  0%   { transform: translateY(0) scaleY(1); }
+  25%  { transform: translateY(-2px) scaleY(0.9); }
+  50%  { transform: translateY(-20px) scaleY(1.08); }
+  75%  { transform: translateY(-2px) scaleY(0.95); }
+  100% { transform: translateY(0) scaleY(1); }
+}
+
+/* —— 动作:stretch (伸懒腰) —— */
+.hero-cat[data-act="stretch"] .cat-body { animation: catStretch 1.4s steps(7) 1; }
+@keyframes catStretch {
+  0%   { transform: scale(1,1); }
+  40%  { transform: scale(1.18,0.82); }
+  70%  { transform: scale(0.94,1.08); }
+  100% { transform: scale(1,1); }
+}
+
+/* —— 动作:walk (走动:身体上下颠 + 四肢交替 + 头微点) —— */
+.hero-cat[data-act="walk"] .cat-body { animation: catWalkBob 0.34s ease-in-out infinite; }
+@keyframes catWalkBob {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  25%     { transform: translateY(-2.5px) rotate(-1.5deg); }
+  50%     { transform: translateY(0) rotate(0deg); }
+  75%     { transform: translateY(-2.5px) rotate(1.5deg); }
+}
+.hero-cat[data-act="walk"] .cat-legF { animation: catStepF 0.34s ease-in-out infinite; transform-origin: 12px 25px; }
+.hero-cat[data-act="walk"] .cat-legB { animation: catStepB 0.34s ease-in-out infinite; transform-origin: 20px 25px; }
+@keyframes catStepF {
+  0%,100% { transform: translateX(0) rotate(0deg); }
+  50%     { transform: translateX(2px) rotate(10deg); }
+}
+@keyframes catStepB {
+  0%,100% { transform: translateX(0) rotate(0deg); }
+  50%     { transform: translateX(-2px) rotate(-10deg); }
+}
+.hero-cat[data-act="walk"] .cat-head { animation: catWalkHead 0.34s ease-in-out infinite; transform-origin: 14px 16px; }
+@keyframes catWalkHead {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-1px); }
+}
+.hero-cat[data-act="walk"] .cat-tail { animation: catTailWalk 0.34s ease-in-out infinite; }
+@keyframes catTailWalk {
+  0%,100% { transform: rotate(-4deg); }
+  50%     { transform: rotate(-20deg); }
+}
+
+/* —— 动作:loaf (趴成面包,压扁) —— */
+.hero-cat[data-act="loaf"] .cat-body { transform: scaleY(0.78) translateY(6px); }
+
+/* —— 对话气泡 —— */
+.cat-bubble {
+  position: absolute; bottom: 64px; left: 50%; transform: translateX(-50%) scale(0);
+  background: var(--warm-paper); border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  padding: 6px 10px; white-space: nowrap;
+  font-family: 'Press Start 2P','ZCOOL QingKe HuangYou', monospace;
+  font-size: 10px; color: var(--ink-dark);
+  transition: transform 0.25s steps(4); pointer-events: none;
+  z-index: 15;
+}
+.cat-bubble::after {
+  content:''; position:absolute; bottom:-9px; left:50%; transform:translateX(-50%);
+  width:6px; height:6px; background: var(--warm-paper);
+  border-right:3px solid var(--ink-dark); border-bottom:3px solid var(--ink-dark);
+}
+.hero-cat[data-bubble="1"] .cat-bubble { transform: translateX(-50%) scale(1); }
+
+/* ====== 首页自由走动的小企鹅 ====== */
+.hero-peng {
+  position: absolute;
+  bottom: 14px;
+  left: 70%;
+  width: 56px; height: 60px;
+  z-index: 8;
+  cursor: pointer;
+  transition: left 3.6s cubic-bezier(.37,.01,.4,1), bottom 0.5s steps(6);
+  image-rendering: pixelated;
+}
+.hero-peng .peng-body { width: 100%; height: 100%; transform-origin: bottom center; }
+.hero-peng .peng-body svg { width: 100%; height: 100%; image-rendering: pixelated; display: block; }
+.peng-shadow {
+  position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+  width: 34px; height: 6px; background: rgba(45,36,24,0.22); border-radius: 50%;
+}
+.hero-peng[data-flip="1"] .peng-body { transform: scaleX(-1); }
+
+/* 眨眼 */
+.peng-eyes-closed { opacity: 0; }
+.hero-peng[data-blink="1"] .peng-eyes { opacity: 0; }
+.hero-peng[data-blink="1"] .peng-eyes-closed { opacity: 1; }
+
+/* —— idle:轻轻呼吸 —— */
+.hero-peng[data-act="idle"] .peng-body { animation: pengBreathe 2.6s ease-in-out infinite; }
+@keyframes pengBreathe {
+  0%,100% { transform: translateY(0) scaleY(1); }
+  50%     { transform: translateY(-1px) scaleY(1.03); }
+}
+
+/* —— stand:站着小幅左右摇 —— */
+.hero-peng[data-act="stand"] .peng-body { animation: pengSway 2.4s ease-in-out infinite; }
+@keyframes pengSway {
+  0%,100% { transform: rotate(-2deg); }
+  50%     { transform: rotate(2deg); }
+}
+
+/* —— walk:企鹅走路(身体左右摆 + 双脚交替 + 翅膀拍) —— */
+.hero-peng[data-act="walk"] .peng-body { animation: pengWalkBob 0.36s ease-in-out infinite; }
+@keyframes pengWalkBob {
+  0%,100% { transform: translateY(0) rotate(-4deg); }
+  50%     { transform: translateY(-2px) rotate(4deg); }
+}
+.hero-peng[data-act="walk"] .peng-footL { animation: pengStepL 0.36s ease-in-out infinite; transform-origin: 11px 26px; }
+.hero-peng[data-act="walk"] .peng-footR { animation: pengStepR 0.36s ease-in-out infinite; transform-origin: 19px 26px; }
+@keyframes pengStepL {
+  0%,100% { transform: translateX(0) translateY(0); }
+  50%     { transform: translateX(-2px) translateY(-2px); }
+}
+@keyframes pengStepR {
+  0%,100% { transform: translateX(0) translateY(-2px); }
+  50%     { transform: translateX(2px) translateY(0); }
+}
+.hero-peng[data-act="walk"] .peng-wingL { animation: pengWingWalkL 0.36s ease-in-out infinite; transform-origin: 6px 11px; }
+.hero-peng[data-act="walk"] .peng-wingR { animation: pengWingWalkR 0.36s ease-in-out infinite; transform-origin: 24px 11px; }
+@keyframes pengWingWalkL { 0%,100%{ transform: rotate(0deg);} 50%{ transform: rotate(18deg);} }
+@keyframes pengWingWalkR { 0%,100%{ transform: rotate(0deg);} 50%{ transform: rotate(-18deg);} }
+
+/* —— hop:点击蹦一下 + 大幅扑腾翅膀 —— */
+.hero-peng[data-act="hop"] .peng-body { animation: pengHop 0.6s ease-out 2; }
+@keyframes pengHop {
+  0%   { transform: translateY(0) scaleY(1); }
+  30%  { transform: translateY(-16px) scaleY(1.06); }
+  60%  { transform: translateY(0) scaleY(0.92); }
+  100% { transform: translateY(0) scaleY(1); }
+}
+.hero-peng[data-act="hop"] .peng-wingL { animation: pengFlapBigL 0.22s ease-in-out 6; transform-origin: 6px 11px; }
+.hero-peng[data-act="hop"] .peng-wingR { animation: pengFlapBigR 0.22s ease-in-out 6; transform-origin: 24px 11px; }
+@keyframes pengFlapBigL { 0%,100%{ transform: rotate(2deg);} 50%{ transform: rotate(46deg);} }
+@keyframes pengFlapBigR { 0%,100%{ transform: rotate(-2deg);} 50%{ transform: rotate(-46deg);} }
+
+/* —— 对话气泡(沿用猫的样式) —— */
+.peng-bubble {
+  position: absolute; bottom: 62px; left: 50%; transform: translateX(-50%) scale(0);
+  background: var(--warm-paper); border: 3px solid var(--ink-dark);
+  box-shadow: 3px 3px 0 var(--ink-dark);
+  padding: 6px 10px; white-space: nowrap;
+  font-family: 'Press Start 2P','ZCOOL QingKe HuangYou', monospace;
+  font-size: 10px; color: var(--ink-dark);
+  transition: transform 0.25s steps(4); pointer-events: none;
+  z-index: 15;
+}
+.peng-bubble::after {
+  content:''; position:absolute; bottom:-9px; left:50%; transform:translateX(-50%);
+  width:6px; height:6px; background: var(--warm-paper);
+  border-right:3px solid var(--ink-dark); border-bottom:3px solid var(--ink-dark);
+}
+.hero-peng[data-bubble="1"] .peng-bubble { transform: translateX(-50%) scale(1); }
+
+@media (max-width: 560px) {
+  .hero-peng { width: 46px; height: 50px; }
+}
+
+/* ====== 无障碍:尊重「减少动态效果」系统偏好 ====== */
+@media (prefers-reduced-motion: reduce) {
+  .hero-cat, .hero-peng,
+  .hero-cat .cat-body, .hero-peng .peng-body,
+  .cat-tail, .cat-head, .cat-legF, .cat-legB,
+  .peng-footL, .peng-footR, .peng-wingL, .peng-wingR,
+  .hero-cloud, .hero-bird, .hero-sun,
+  .picnic-cat, .picnic-peng, .pcat-tail {
+    animation: none !important;
+  }
+  .hero-cat { transition: left 0.4s linear; }
+  .hero-peng { transition: left 0.4s linear; }
+}
+
+/* ============================================================
+   小鱼干积分 & 亲密度系统 样式
+   ============================================================ */
+
+/* —— 首页小鱼干计数徽章 —— */
+.fish-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 2px;
+  padding: 4px 12px 4px 8px;
+  background: var(--warm-paper);
+  border: 2px solid var(--wood);
+  border-radius: 14px;
+  box-shadow: 2px 2px 0 var(--wood-deep);
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  width: fit-content;
+}
+.fish-badge-icon { display: inline-flex; width: 22px; }
+.fish-badge-icon svg { width: 22px; height: auto; image-rendering: pixelated; }
+.fish-badge-count {
+  font-size: 13px; color: var(--warm-deep); min-width: 12px; text-align: center;
+}
+.fish-badge-label { font-size: 9px; color: var(--ink2); }
+
+/* —— 动物头顶亲密等级标签 —— */
+.bond-tag {
+  position: absolute;
+  top: -14px; left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  background: var(--warm-paper);
+  border: 1.5px solid var(--pink);
+  border-radius: 10px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: var(--berry-deep);
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.12);
+  z-index: 6;
+}
+.bond-tag .bond-heart { color: var(--pink); font-family: monospace; }
+
+/* —— 小鱼干飞行反馈 —— */
+.fish-fly {
+  position: fixed;
+  font-size: 22px;
+  z-index: 9999;
+  pointer-events: none;
+  transition: transform .75s cubic-bezier(.4,.1,.3,1), opacity .75s ease;
+  will-change: transform, opacity;
+}
+
+/* ============================================================
+   升级 / 变身弹窗
+   ============================================================ */
+.evo-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(40, 28, 14, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10000;
+  opacity: 0; transition: opacity .3s ease;
+  overflow: hidden;
+}
+.evo-backdrop.show { opacity: 1; }
+
+.evo-card {
+  position: relative;
+  width: min(340px, 86vw);
+  background: var(--warm-paper);
+  border: 3px solid var(--wood);
+  border-radius: 18px;
+  box-shadow: 5px 5px 0 var(--wood-deep);
+  padding: 22px 20px 18px;
+  text-align: center;
+  transform: translateY(16px) scale(.96);
+  transition: transform .3s cubic-bezier(.2,.9,.3,1.2);
+  font-family: 'ZCOOL QingKe HuangYou', 'VT323', monospace;
+}
+.evo-backdrop.show .evo-card { transform: translateY(0) scale(1); }
+
+.evo-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 13px; color: var(--warm-deep);
+  margin-bottom: 14px; line-height: 1.5;
+}
+.evo-anim {
+  width: 96px; height: 96px;
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  background: #f3efe4;
+  border-radius: 14px;
+  border: 2px solid var(--wood-light);
+  animation: evo-pop .6s ease;
+}
+.evo-anim svg { image-rendering: pixelated; }
+@keyframes evo-pop {
+  0% { transform: scale(.3) rotate(-12deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(6deg); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.evo-levelrow {
+  display: flex; align-items: center; gap: 8px;
+  margin: 6px 4px 12px;
+}
+.evo-lv-from, .evo-lv-to {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px; color: var(--ink2);
+}
+.evo-lv-to { color: var(--berry-deep); }
+.evo-bar {
+  flex: 1; height: 14px;
+  background: var(--wood-light);
+  border: 2px solid var(--wood);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.evo-bar-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--pink), var(--berry));
+  border-radius: 6px 0 0 6px;
+}
+.evo-newform {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 10px; color: var(--grass-dark);
+  margin: 6px 0 14px;
+  animation: evo-shine 1.4s ease infinite;
+}
+@keyframes evo-shine { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
+
+.evo-btn {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 11px;
+  padding: 9px 22px;
+  background: var(--grass);
+  color: #fff;
+  border: 2px solid var(--grass-dark);
+  border-radius: 12px;
+  box-shadow: 2px 2px 0 var(--grass-dark);
+  cursor: pointer;
+}
+.evo-btn:active { transform: translate(2px,2px); box-shadow: none; }
+
+/* Lv10 满级:金色高亮 + 彩带 */
+.evo-backdrop.evo-max .evo-card {
+  border-color: #e0a800;
+  box-shadow: 5px 5px 0 #b88600, 0 0 26px rgba(255, 210, 74, 0.6);
+}
+.evo-backdrop.evo-max .evo-title { color: #c98a00; }
+.evo-confetti {
+  position: absolute; top: -12px;
+  width: 8px; height: 12px;
+  border-radius: 2px;
+  animation: evo-fall linear forwards;
+  z-index: 1;
+}
+@keyframes evo-fall {
+  0% { transform: translateY(-20px) rotate(0); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(540deg); opacity: .2; }
+}
+
+/* ============ 摄像头弹窗 ============ */
+.cam-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(45, 36, 24, 0.72);
+  padding: 20px;
+}
+.cam-modal {
+  background: var(--warm-paper);
+  border: 4px solid var(--ink-dark);
+  box-shadow: 8px 8px 0 var(--ink-dark);
+  padding: 18px;
+  width: 100%; max-width: 560px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.cam-modal-title {
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 12px; line-height: 1.7; color: var(--ink-dark);
+  text-align: center;
+}
+.cam-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #1c160e;
+  border: 3px solid var(--ink-dark);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.cam-stage video,
+.cam-stage img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cam-msg {
+  position: absolute; left: 12px; right: 12px;
+  top: 50%; transform: translateY(-50%);
+  text-align: center;
+  font-family: 'Press Start 2P', 'ZCOOL QingKe HuangYou', monospace;
+  font-size: 9px; line-height: 1.8;
+  color: var(--warm-cream);
+  text-shadow: 1px 1px 0 var(--ink-dark);
+}
+.cam-controls {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  justify-content: center; align-items: center;
+}
+@media (max-width: 480px) {
+  .cam-modal-title { font-size: 10px; }
+  .cam-controls .pbtn { font-size: 9px; padding: 8px 12px; }
+}

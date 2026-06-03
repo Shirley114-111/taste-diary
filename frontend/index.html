@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Taste Diary · 食味日记</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=ZCOOL+QingKe+HuangYou&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ 动态加载页(翻书动画 → 登录) ============ -->
+<div id="bootScreen" class="book-stage" data-phase="closed">
+  <!-- 背景小装饰 -->
+  <div class="book-bg">
+    <div class="boot-cloud c1"></div>
+    <div class="boot-cloud c2"></div>
+    <div class="boot-cloud c3"></div>
+    <div class="boot-sun"></div>
+  </div>
+
+  <!-- 像素日记本 -->
+  <div class="pbook" id="pbook">
+    <!-- 书脊 / 底座 -->
+    <div class="pbook-spine"></div>
+
+    <!-- 左半页(打开后露出的左页) -->
+    <div class="pbook-leaf pbook-left">
+      <div class="leaf-paper">
+        <button class="auth-lang-switch" id="authLangSwitch" type="button">中 ▸ EN</button>
+        <div class="leaf-doodle">
+          <svg viewBox="0 0 40 24" shape-rendering="crispEdges">
+            <!-- 小白猫 -->
+            <g class="doodle-cat">
+              <!-- 耳朵 -->
+              <rect x="4" y="4" width="3" height="3" fill="#f4f1ea"/>
+              <rect x="11" y="4" width="3" height="3" fill="#f4f1ea"/>
+              <rect x="5" y="5" width="1" height="1" fill="#ffc6d0"/>
+              <rect x="12" y="5" width="1" height="1" fill="#ffc6d0"/>
+              <!-- 头 -->
+              <rect x="4" y="7" width="11" height="9" fill="#f4f1ea"/>
+              <rect x="4" y="15" width="11" height="1" fill="#e7e0d4"/>
+              <!-- 眼 -->
+              <rect x="6" y="10" width="2" height="3" fill="#3b6b48"/>
+              <rect x="11" y="10" width="2" height="3" fill="#3b6b48"/>
+              <rect x="6" y="10" width="1" height="1" fill="#fff"/>
+              <rect x="11" y="10" width="1" height="1" fill="#fff"/>
+              <!-- 鼻嘴 -->
+              <rect x="9" y="12" width="1" height="1" fill="#ffaeba"/>
+              <!-- 胡须 -->
+              <rect x="1" y="11" width="3" height="1" fill="#d9d2c4"/>
+              <rect x="15" y="11" width="3" height="1" fill="#d9d2c4"/>
+              <!-- 腮红 -->
+              <rect x="5" y="13" width="1" height="1" fill="#ffc6d0" opacity="0.85"/>
+              <rect x="13" y="13" width="1" height="1" fill="#ffc6d0" opacity="0.85"/>
+            </g>
+            <!-- 企鹅 -->
+            <g class="doodle-peng">
+              <!-- 脚 -->
+              <rect x="26" y="19" width="3" height="1" fill="#f4a73f"/>
+              <rect x="30" y="19" width="3" height="1" fill="#f4a73f"/>
+              <!-- 黑色圆顶身体 -->
+              <rect x="26" y="5" width="7" height="1" fill="#23262f"/>
+              <rect x="25" y="6" width="9" height="13" fill="#2d3142"/>
+              <rect x="26" y="6" width="5" height="1" fill="#3a3f54"/>
+              <!-- 白脸 + 白肚 -->
+              <rect x="26" y="7" width="7" height="11" fill="#fbf8f1"/>
+              <!-- 大圆眼 -->
+              <rect x="27" y="8" width="2" height="2" fill="#23262f"/>
+              <rect x="30" y="8" width="2" height="2" fill="#23262f"/>
+              <rect x="27" y="8" width="1" height="1" fill="#fff"/>
+              <rect x="30" y="8" width="1" height="1" fill="#fff"/>
+              <!-- 喙 -->
+              <rect x="28" y="11" width="3" height="1" fill="#f4a73f"/>
+              <rect x="29" y="12" width="1" height="1" fill="#e08e2a"/>
+              <!-- 翅膀 -->
+              <rect x="23" y="9" width="2" height="6" fill="#2d3142"/>
+              <rect x="34" y="9" width="2" height="6" fill="#2d3142"/>
+              <!-- 腮红 -->
+              <rect x="26" y="11" width="1" height="1" fill="#ffb3c1" opacity="0.85"/>
+              <rect x="32" y="11" width="1" height="1" fill="#ffb3c1" opacity="0.85"/>
+            </g>
+          </svg>
+        </div>
+        <div class="leaf-caption" data-i18n="boot.diaryFrom">这是属于你的食味日记<br><span class="leaf-caption-en">This is your own Taste Diary</span></div>
+      </div>
+    </div>
+
+    <!-- 右半页底:登录界面就长在这一页上 -->
+    <div class="pbook-leaf pbook-right">
+      <div class="leaf-paper">
+        <!-- 登录系统已移除:此页仅作开场欢迎 + 设置昵称(可留空) -->
+        <div class="book-auth" id="bookAuth">
+          <div class="auth-inner">
+            <div class="auth-title">TASTE DIARY</div>
+            <div class="auth-sub" data-i18n="auth.sub">⊹ 欢迎来到食味日记 ⊹</div>
+            <div class="auth-field">
+              <label class="auth-label"><span data-i18n="auth.nameLabel">你想让我怎么称呼你?</span></label>
+              <input class="auth-input" id="nameInput" maxlength="20" autocomplete="off" data-i18n-ph="auth.namePh" placeholder="可留空">
+            </div>
+            <button class="pbtn pbtn-primary block" id="btnEnter">
+              <span data-i18n="auth.enter">进入日记 ▸</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 翻动的活页(动画用,盖在右页之上) -->
+    <div class="pbook-flip f1"><div class="flip-front"></div><div class="flip-back"></div></div>
+    <div class="pbook-flip f2"><div class="flip-front"></div><div class="flip-back"></div></div>
+    <div class="pbook-flip f3"><div class="flip-front"></div><div class="flip-back"></div></div>
+
+    <!-- 书封面(初始覆盖在最上,打开时向左翻开) -->
+    <div class="pbook-cover" id="pbookCover">
+      <div class="cover-face cover-front">
+        <div class="cover-frame">
+          <div class="cover-mascot">
+            <svg viewBox="0 0 40 24" shape-rendering="crispEdges">
+              <!-- 小白猫 -->
+              <g>
+                <rect x="4" y="4" width="3" height="3" fill="#f4f1ea"/>
+                <rect x="11" y="4" width="3" height="3" fill="#f4f1ea"/>
+                <rect x="5" y="5" width="1" height="1" fill="#ffc6d0"/>
+                <rect x="12" y="5" width="1" height="1" fill="#ffc6d0"/>
+                <rect x="4" y="7" width="11" height="9" fill="#f4f1ea"/>
+                <rect x="4" y="15" width="11" height="1" fill="#e7e0d4"/>
+                <rect x="6" y="10" width="2" height="3" fill="#3b6b48"/>
+                <rect x="11" y="10" width="2" height="3" fill="#3b6b48"/>
+                <rect x="6" y="10" width="1" height="1" fill="#fff"/>
+                <rect x="11" y="10" width="1" height="1" fill="#fff"/>
+                <rect x="9" y="12" width="1" height="1" fill="#ffaeba"/>
+                <rect x="1" y="11" width="3" height="1" fill="#d9d2c4"/>
+                <rect x="15" y="11" width="3" height="1" fill="#d9d2c4"/>
+                <rect x="5" y="13" width="1" height="1" fill="#ffc6d0" opacity="0.85"/>
+                <rect x="13" y="13" width="1" height="1" fill="#ffc6d0" opacity="0.85"/>
+              </g>
+              <!-- 企鹅 -->
+              <g>
+                <rect x="26" y="19" width="3" height="1" fill="#f4a73f"/>
+                <rect x="30" y="19" width="3" height="1" fill="#f4a73f"/>
+                <rect x="26" y="5" width="7" height="1" fill="#23262f"/>
+                <rect x="25" y="6" width="9" height="13" fill="#2d3142"/>
+                <rect x="26" y="6" width="5" height="1" fill="#3a3f54"/>
+                <rect x="26" y="7" width="7" height="11" fill="#fbf8f1"/>
+                <rect x="27" y="8" width="2" height="2" fill="#23262f"/>
+                <rect x="30" y="8" width="2" height="2" fill="#23262f"/>
+                <rect x="27" y="8" width="1" height="1" fill="#fff"/>
+                <rect x="30" y="8" width="1" height="1" fill="#fff"/>
+                <rect x="28" y="11" width="3" height="1" fill="#f4a73f"/>
+                <rect x="29" y="12" width="1" height="1" fill="#e08e2a"/>
+                <rect x="23" y="9" width="2" height="6" fill="#2d3142"/>
+                <rect x="34" y="9" width="2" height="6" fill="#2d3142"/>
+                <rect x="26" y="11" width="1" height="1" fill="#ffb3c1" opacity="0.85"/>
+                <rect x="32" y="11" width="1" height="1" fill="#ffb3c1" opacity="0.85"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cover-title">TASTE<br>DIARY</div>
+          <div class="cover-sub" data-i18n="boot.sub">⊹ 食味日记 ⊹</div>
+        </div>
+      </div>
+      <div class="cover-face cover-back"></div>
+    </div>
+  </div>
+
+  <!-- 进度条(放在书下方,翻页阶段显示) -->
+  <div class="book-loader" id="bookLoader">
+    <div class="boot-bar"><div class="boot-bar-fill" id="bootBar"></div></div>
+    <div class="boot-bar-text"><span data-i18n="boot.loading">INTO THE DIARY</span><span class="boot-dots"></span></div>
+  </div>
+
+  <!-- 草地野餐场景(登录页) -->
+  <div class="picnic-scene" id="bootPicnic" aria-hidden="true">
+    <!-- 野餐垫 -->
+    <div class="picnic-mat"></div>
+    <!-- 篮子 -->
+    <div class="picnic-basket" title="🧺">
+      <svg viewBox="0 0 24 18" shape-rendering="crispEdges">
+        <rect x="3" y="6" width="18" height="10" fill="#c08a4a"/>
+        <rect x="3" y="6" width="18" height="2" fill="#d9a866"/>
+        <rect x="3" y="6" width="18" height="10" fill="url(#weave)" opacity="0"/>
+        <rect x="6" y="8" width="2" height="8" fill="#a8752f"/>
+        <rect x="11" y="8" width="2" height="8" fill="#a8752f"/>
+        <rect x="16" y="8" width="2" height="8" fill="#a8752f"/>
+        <rect x="2" y="5" width="20" height="2" fill="#8a5d23"/>
+        <path d="M5 6 Q12 -2 19 6" fill="none" stroke="#8a5d23" stroke-width="2"/>
+        <rect x="8" y="2" width="3" height="3" fill="#e85a4f"/>
+        <rect x="13" y="2" width="3" height="3" fill="#f4a73f"/>
+      </svg>
+    </div>
+    <!-- 可互动小白猫 -->
+    <div class="picnic-cat" id="picnicCat" title="戳戳我喵~" role="button" tabindex="0">
+      <svg viewBox="0 0 32 30" shape-rendering="crispEdges">
+        <rect x="6" y="26" width="20" height="2" fill="rgba(45,36,24,0.18)"/>
+        <!-- 尾巴 -->
+        <g class="pcat-tail">
+          <rect x="25" y="18" width="2" height="2" fill="#f4f1ea"/>
+          <rect x="26" y="16" width="2" height="2" fill="#f4f1ea"/>
+          <rect x="27" y="15" width="2" height="2" fill="#e7e0d4"/>
+        </g>
+        <!-- 身体(坐姿) -->
+        <rect x="9" y="16" width="14" height="10" fill="#f4f1ea"/>
+        <rect x="9" y="25" width="14" height="1" fill="#e7e0d4"/>
+        <rect x="11" y="24" width="3" height="2" fill="#f4f1ea"/>
+        <rect x="18" y="24" width="3" height="2" fill="#f4f1ea"/>
+        <!-- 头 -->
+        <g class="pcat-head">
+          <rect x="9" y="6" width="12" height="10" fill="#f4f1ea"/>
+          <rect x="9" y="3" width="3" height="3" fill="#f4f1ea"/>
+          <rect x="18" y="3" width="3" height="3" fill="#f4f1ea"/>
+          <rect x="10" y="4" width="1" height="1" fill="#ffc6d0"/>
+          <rect x="19" y="4" width="1" height="1" fill="#ffc6d0"/>
+          <g class="pcat-eyes">
+            <rect x="11" y="9" width="2" height="3" fill="#3b6b48"/>
+            <rect x="17" y="9" width="2" height="3" fill="#3b6b48"/>
+            <rect x="11" y="9" width="1" height="1" fill="#fff"/>
+            <rect x="17" y="9" width="1" height="1" fill="#fff"/>
+          </g>
+          <g class="pcat-eyes-closed">
+            <rect x="11" y="10" width="2" height="1" fill="#3b6b48"/>
+            <rect x="17" y="10" width="2" height="1" fill="#3b6b48"/>
+          </g>
+          <rect x="14" y="12" width="2" height="1" fill="#ffaeba"/>
+          <rect x="6" y="11" width="3" height="1" fill="#d9d2c4"/>
+          <rect x="21" y="11" width="3" height="1" fill="#d9d2c4"/>
+          <rect x="10" y="12" width="1" height="1" fill="#ffc6d0" opacity="0.85"/>
+          <rect x="19" y="12" width="1" height="1" fill="#ffc6d0" opacity="0.85"/>
+        </g>
+      </svg>
+      <div class="picnic-bubble" id="picnicCatBubble"></div>
+    </div>
+    <!-- 可互动企鹅 -->
+    <div class="picnic-peng" id="picnicPeng" title="戳戳我!" role="button" tabindex="0">
+      <svg viewBox="0 0 30 32" shape-rendering="crispEdges">
+        <rect x="5" y="28" width="20" height="2" fill="rgba(45,36,24,0.18)"/>
+        <g class="ppeng-body">
+          <!-- 脚 -->
+          <rect x="9" y="27" width="5" height="2" fill="#f4a73f"/>
+          <rect x="16" y="27" width="5" height="2" fill="#f4a73f"/>
+          <!-- 黑色圆顶身体 -->
+          <rect x="9" y="4" width="12" height="2" fill="#23262f"/>
+          <rect x="7" y="6" width="16" height="2" fill="#23262f"/>
+          <rect x="6" y="8" width="18" height="16" fill="#2d3142"/>
+          <rect x="7" y="24" width="16" height="2" fill="#23262f"/>
+          <rect x="8" y="26" width="14" height="1" fill="#23262f"/>
+          <rect x="9" y="6" width="9" height="2" fill="#3a3f54"/>
+          <!-- 白脸 + 白肚 -->
+          <rect x="9" y="8" width="12" height="7" fill="#fbf8f1"/>
+          <rect x="9" y="14" width="12" height="11" fill="#fbf8f1"/>
+          <rect x="8" y="9" width="1" height="14" fill="#fbf8f1"/>
+          <rect x="21" y="9" width="1" height="14" fill="#fbf8f1"/>
+          <!-- 大圆眼 -->
+          <rect x="10" y="9" width="3" height="4" fill="#23262f"/>
+          <rect x="17" y="9" width="3" height="4" fill="#23262f"/>
+          <rect x="11" y="9" width="1" height="1" fill="#fff"/>
+          <rect x="18" y="9" width="1" height="1" fill="#fff"/>
+          <!-- 喙 -->
+          <rect x="13" y="13" width="4" height="2" fill="#f4a73f"/>
+          <rect x="14" y="15" width="2" height="1" fill="#e08e2a"/>
+          <!-- 翅膀 -->
+          <g class="ppeng-wingL"><rect x="4" y="11" width="3" height="9" fill="#2d3142"/></g>
+          <g class="ppeng-wingR"><rect x="23" y="11" width="3" height="9" fill="#2d3142"/></g>
+          <!-- 腮红 -->
+          <rect x="9" y="13" width="2" height="1" fill="#ffb3c1" opacity="0.85"/>
+          <rect x="19" y="13" width="2" height="1" fill="#ffb3c1" opacity="0.85"/>
+        </g>
+      </svg>
+      <div class="picnic-bubble" id="picnicPengBubble"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 旧登录页已并入翻书加载页 -->
+
+<!-- ============ 主应用 ============ -->
+<div id="app" style="display:none">
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="logo" id="logoBtn">
+        <svg class="logo-icon" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <rect x="6" y="1" width="4" height="2" fill="#5fa849"/>
+          <rect x="5" y="3" width="6" height="2" fill="#e85a4f"/>
+          <rect x="4" y="5" width="8" height="6" fill="#e85a4f"/>
+          <rect x="5" y="11" width="6" height="1" fill="#c44539"/>
+          <rect x="6" y="7" width="1" height="1" fill="#fff"/>
+          <rect x="9" y="7" width="1" height="1" fill="#fff"/>
+          <rect x="7" y="9" width="2" height="1" fill="#2d2418"/>
+        </svg>
+        <span>TASTE DIARY</span>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-page="home"><span class="nav-i">⌂</span><span data-i18n="nav.home">首页</span></button>
+        <button class="nav-item" data-page="upload"><span class="nav-i">◉</span><span data-i18n="nav.upload">识别</span></button>
+        <button class="nav-item" data-page="history"><span class="nav-i">⊞</span><span data-i18n="nav.history">记录</span></button>
+        <button class="nav-item" data-page="monthly"><span class="nav-i">⟡</span><span data-i18n="nav.monthly">月报</span></button>
+        <button class="nav-item" data-page="plan"><span class="nav-i">✿</span><span data-i18n="nav.plan">方案</span></button>
+      </nav>
+
+      <div class="topbar-right">
+        <button class="lang-switch" id="langSwitch">中 / EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- 首页 -->
+    <section class="page active" id="page-home">
+      <div class="farm-hero">
+        <div class="hero-sun"></div>
+        <div class="hero-cloud" style="top:20%;left:8%"></div>
+        <div class="hero-cloud small" style="top:30%;right:15%;animation-delay:-3s"></div>
+
+        <div class="hero-bird"></div>
+
+        <!-- 随机动作小白猫 -->
+        <div class="hero-cat" id="heroCat" title="喵~">
+          <div class="cat-shadow"></div>
+          <div class="cat-body">
+            <svg viewBox="0 0 32 32" shape-rendering="crispEdges">
+              <!-- 尾巴 -->
+              <g class="cat-tail">
+                <rect x="26" y="18" width="2" height="2" fill="#f4f1ea"/>
+                <rect x="27" y="16" width="2" height="2" fill="#f4f1ea"/>
+                <rect x="28" y="14" width="2" height="2" fill="#f4f1ea"/>
+                <rect x="28" y="13" width="2" height="1" fill="#e7e0d4"/>
+              </g>
+              <!-- 身体 -->
+              <rect x="9" y="16" width="16" height="9" fill="#f4f1ea"/>
+              <rect x="9" y="24" width="16" height="1" fill="#e7e0d4"/>
+              <!-- 腿/爪 -->
+              <g class="cat-legF">
+                <rect x="11" y="25" width="3" height="2" fill="#f4f1ea"/>
+                <rect x="11" y="27" width="3" height="1" fill="#d9d2c4"/>
+              </g>
+              <g class="cat-legB">
+                <rect x="19" y="25" width="3" height="2" fill="#f4f1ea"/>
+                <rect x="19" y="27" width="3" height="1" fill="#d9d2c4"/>
+              </g>
+              <!-- 头 -->
+              <g class="cat-head">
+                <rect x="8" y="7" width="12" height="10" fill="#f4f1ea"/>
+                <!-- 耳朵 -->
+                <rect x="8" y="4" width="3" height="3" fill="#f4f1ea"/>
+                <rect x="17" y="4" width="3" height="3" fill="#f4f1ea"/>
+                <rect x="9" y="5" width="1" height="1" fill="#ffc6d0"/>
+                <rect x="18" y="5" width="1" height="1" fill="#ffc6d0"/>
+                <!-- 眼睛 -->
+                <g class="cat-eyes">
+                  <rect x="10" y="10" width="2" height="3" fill="#3b6b48"/>
+                  <rect x="16" y="10" width="2" height="3" fill="#3b6b48"/>
+                  <rect x="10" y="10" width="1" height="1" fill="#fff"/>
+                  <rect x="16" y="10" width="1" height="1" fill="#fff"/>
+                </g>
+                <!-- 闭眼(眨眼用) -->
+                <g class="cat-eyes-closed">
+                  <rect x="10" y="11" width="2" height="1" fill="#3b6b48"/>
+                  <rect x="16" y="11" width="2" height="1" fill="#3b6b48"/>
+                </g>
+                <!-- 鼻子嘴 -->
+                <rect x="13" y="13" width="2" height="1" fill="#ffaeba"/>
+                <rect x="12" y="14" width="1" height="1" fill="#c9a98f"/>
+                <rect x="15" y="14" width="1" height="1" fill="#c9a98f"/>
+                <!-- 胡须 -->
+                <rect x="5" y="12" width="3" height="1" fill="#d9d2c4"/>
+                <rect x="20" y="12" width="3" height="1" fill="#d9d2c4"/>
+                <!-- 腮红 -->
+                <rect x="9" y="13" width="1" height="1" fill="#ffc6d0" opacity="0.85"/>
+                <rect x="18" y="13" width="1" height="1" fill="#ffc6d0" opacity="0.85"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cat-bubble" id="catBubble"></div>
+          <div class="bond-tag" id="catBondTag" data-bond="cat"><span class="bond-heart">♥</span><span class="bond-lv" data-bond-lv="cat">Lv1</span></div>
+        </div>
+
+        <div class="hero-text">
+          <div class="hero-greet">
+            <span data-i18n="home.greet">你好,</span><span id="heroName">friend</span> ✦
+          </div>
+          <div class="fish-badge" id="fishBadge" title="完成饮食心理调节方案可获得小鱼干">
+            <span class="fish-badge-icon">
+              <svg viewBox="0 0 20 12" shape-rendering="crispEdges">
+                <rect x="2" y="4" width="11" height="5" fill="#f4a73f"/>
+                <rect x="2" y="3" width="9" height="1" fill="#ffc98a"/>
+                <rect x="2" y="9" width="9" height="1" fill="#e08e2a"/>
+                <rect x="12" y="3" width="2" height="2" fill="#f4a73f"/>
+                <rect x="13" y="5" width="3" height="2" fill="#f4a73f"/>
+                <rect x="12" y="8" width="4" height="2" fill="#f4a73f"/>
+                <rect x="4" y="5" width="1" height="1" fill="#2d2418"/>
+                <rect x="6" y="5" width="4" height="1" fill="#e08e2a"/>
+              </svg>
+            </span>
+            <span class="fish-badge-count" data-fish-count>0</span>
+            <span class="fish-badge-label" data-i18n="home.fishLabel">小鱼干</span>
+          </div>
+          <div class="hero-title" data-i18n="home.title">来给今天的一餐<br>留张像素照片吧</div>
+          <button class="pbtn pbtn-primary big-camera" id="bigCameraBtn">
+            <span class="cam-icon">
+              <svg viewBox="0 0 16 16" shape-rendering="crispEdges">
+                <rect x="2" y="4" width="12" height="9" fill="#2d2418"/>
+                <rect x="3" y="5" width="10" height="7" fill="#faf2e1"/>
+                <rect x="6" y="2" width="4" height="2" fill="#2d2418"/>
+                <rect x="6" y="7" width="4" height="3" fill="#a67244"/>
+                <rect x="7" y="8" width="2" height="1" fill="#deb78a"/>
+                <rect x="12" y="5" width="1" height="1" fill="#ff8a96"/>
+              </svg>
+            </span>
+            <span data-i18n="home.camera">📷 拍照 / 上传一餐</span>
+          </button>
+        </div>
+
+        <div class="hero-ground">
+          <div class="grass-tuft" style="left:5%"></div>
+          <div class="grass-tuft" style="left:18%"></div>
+          <div class="grass-tuft" style="left:35%"></div>
+          <div class="grass-tuft" style="left:60%"></div>
+          <div class="grass-tuft" style="left:80%"></div>
+          <div class="hero-flower" style="left:25%"></div>
+          <div class="hero-flower yellow" style="left:55%"></div>
+          <div class="hero-flower pink" style="left:75%"></div>
+
+          <!-- 投喂按钮:点亮后点小动物即可喂食 -->
+          <button class="feed-btn" id="feedBtn" type="button" title="投喂小伙伴">
+            <span class="feed-fish">
+              <svg viewBox="0 0 20 12" shape-rendering="crispEdges">
+                <rect x="2" y="4" width="11" height="5" fill="#f4a73f"/>
+                <rect x="2" y="3" width="9" height="1" fill="#ffc98a"/>
+                <rect x="2" y="9" width="9" height="1" fill="#e08e2a"/>
+                <rect x="12" y="3" width="2" height="2" fill="#f4a73f"/>
+                <rect x="13" y="5" width="3" height="2" fill="#f4a73f"/>
+                <rect x="12" y="8" width="4" height="2" fill="#f4a73f"/>
+                <rect x="4" y="5" width="1" height="1" fill="#2d2418"/>
+                <rect x="6" y="5" width="4" height="1" fill="#e08e2a"/>
+              </svg>
+            </span>
+            <span class="feed-label" data-i18n="home.feed">投喂</span>
+          </button>
+
+          <!-- 自由走动的小企鹅(和猫一样会在草地里溜达) -->
+          <div class="hero-peng" id="heroPeng" title="戳戳我!">
+            <div class="peng-shadow"></div>
+            <div class="peng-body">
+              <svg viewBox="0 0 30 32" shape-rendering="crispEdges">
+                <!-- 脚(走路时交替,画在身体后面) -->
+                <g class="peng-footL"><rect x="9" y="27" width="5" height="2" fill="#f4a73f"/><rect x="8" y="28" width="6" height="1" fill="#e08e2a"/></g>
+                <g class="peng-footR"><rect x="16" y="27" width="5" height="2" fill="#f4a73f"/><rect x="16" y="28" width="6" height="1" fill="#e08e2a"/></g>
+                <!-- 身体(经典黑白呆萌:圆顶头身一体) -->
+                <g class="peng-torso">
+                  <!-- 黑色身体外轮廓:圆顶 -->
+                  <rect x="9" y="4" width="12" height="2" fill="#23262f"/>
+                  <rect x="7" y="6" width="16" height="2" fill="#23262f"/>
+                  <rect x="6" y="8" width="18" height="16" fill="#2d3142"/>
+                  <rect x="7" y="24" width="16" height="2" fill="#23262f"/>
+                  <rect x="8" y="26" width="14" height="1" fill="#23262f"/>
+                  <!-- 头顶高光 -->
+                  <rect x="9" y="6" width="9" height="2" fill="#3a3f54"/>
+                  <rect x="8" y="8" width="4" height="3" fill="#3a3f54"/>
+                  <!-- 白脸蛋(经典款脸部留白) -->
+                  <rect x="9" y="8" width="12" height="7" fill="#fbf8f1"/>
+                  <rect x="8" y="9" width="1" height="5" fill="#fbf8f1"/>
+                  <rect x="21" y="9" width="1" height="5" fill="#fbf8f1"/>
+                  <!-- 大白肚 -->
+                  <rect x="9" y="14" width="12" height="11" fill="#fbf8f1"/>
+                  <rect x="8" y="16" width="1" height="7" fill="#fbf8f1"/>
+                  <rect x="21" y="16" width="1" height="7" fill="#fbf8f1"/>
+                  <!-- 眼睛(大圆眼 + 高光,呆萌) -->
+                  <g class="peng-eyes">
+                    <rect x="10" y="9" width="3" height="4" fill="#23262f"/>
+                    <rect x="17" y="9" width="3" height="4" fill="#23262f"/>
+                    <rect x="11" y="9" width="1" height="1" fill="#fff"/>
+                    <rect x="18" y="9" width="1" height="1" fill="#fff"/>
+                  </g>
+                  <!-- 闭眼(眨眼用) -->
+                  <g class="peng-eyes-closed">
+                    <rect x="10" y="11" width="3" height="1" fill="#23262f"/>
+                    <rect x="17" y="11" width="3" height="1" fill="#23262f"/>
+                  </g>
+                  <!-- 橘色小喙 -->
+                  <rect x="13" y="13" width="4" height="2" fill="#f4a73f"/>
+                  <rect x="14" y="15" width="2" height="1" fill="#e08e2a"/>
+                  <!-- 腮红 -->
+                  <rect x="9" y="13" width="2" height="1" fill="#ffb3c1" opacity="0.85"/>
+                  <rect x="19" y="13" width="2" height="1" fill="#ffb3c1" opacity="0.85"/>
+                </g>
+                <!-- 翅膀(走路时摆动) -->
+                <g class="peng-wingL"><rect x="4" y="11" width="3" height="9" fill="#2d3142"/><rect x="4" y="19" width="3" height="1" fill="#23262f"/></g>
+                <g class="peng-wingR"><rect x="23" y="11" width="3" height="9" fill="#2d3142"/><rect x="23" y="19" width="3" height="1" fill="#23262f"/></g>
+                <!-- 旧脚位占位(已上移) -->
+              </svg>
+            </div>
+            <div class="peng-bubble" id="pengBubble"></div>
+            <div class="bond-tag" id="pengBondTag" data-bond="peng"><span class="bond-heart">♥</span><span class="bond-lv" data-bond-lv="peng">Lv1</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-entries">
+        <div class="entry-card e1" data-page="upload">
+          <div class="entry-icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="2" y="4" width="12" height="9" fill="#2d2418"/><rect x="3" y="5" width="10" height="7" fill="#f4a8b8"/><rect x="6" y="2" width="4" height="2" fill="#2d2418"/><rect x="5" y="7" width="2" height="2" fill="#fff"/><rect x="9" y="7" width="2" height="2" fill="#fff"/><rect x="6" y="10" width="4" height="1" fill="#2d2418"/></svg></div>
+          <div class="entry-name" data-i18n="home.e1">开始识别</div>
+          <div class="entry-desc" data-i18n="home.e1d">拍下一餐看见养分</div>
+        </div>
+        <div class="entry-card e2" data-page="history">
+          <div class="entry-icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="2" y="2" width="12" height="12" fill="#a67244"/><rect x="3" y="3" width="10" height="10" fill="#deb78a"/><rect x="4" y="5" width="8" height="1" fill="#7a5230"/><rect x="4" y="8" width="8" height="1" fill="#7a5230"/><rect x="4" y="11" width="8" height="1" fill="#7a5230"/></svg></div>
+          <div class="entry-name" data-i18n="home.e2">历史记录</div>
+          <div class="entry-desc" data-i18n="home.e2d">每一餐都被温柔记得</div>
+        </div>
+        <div class="entry-card e3" data-page="monthly">
+          <div class="entry-icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="2" y="2" width="12" height="12" fill="#2d2418"/><rect x="3" y="3" width="10" height="10" fill="#a8d5ba"/><rect x="4" y="10" width="2" height="2" fill="#2d2418"/><rect x="7" y="7" width="2" height="5" fill="#2d2418"/><rect x="10" y="5" width="2" height="7" fill="#2d2418"/></svg></div>
+          <div class="entry-name" data-i18n="home.e3">月度报告</div>
+          <div class="entry-desc" data-i18n="home.e3d">看见自己慢慢变好</div>
+        </div>
+        <div class="entry-card e4" data-page="plan">
+          <div class="entry-icon"><svg viewBox="0 0 16 16" shape-rendering="crispEdges"><rect x="6" y="2" width="4" height="2" fill="#7bc457"/><rect x="4" y="4" width="8" height="4" fill="#7bc457"/><rect x="7" y="8" width="2" height="6" fill="#7a5230"/><rect x="5" y="6" width="2" height="2" fill="#c9e8ad"/><rect x="9" y="6" width="2" height="2" fill="#c9e8ad"/></svg></div>
+          <div class="entry-name" data-i18n="home.e4">身心方案</div>
+          <div class="entry-desc" data-i18n="home.e4d">为你定制的温柔建议</div>
+        </div>
+      </div>
+
+      <div class="tip-board">
+        <div class="board-nail"></div>
+        <div class="board-nail right"></div>
+        <div class="tip-icon">★</div>
+        <div class="tip-content">
+          <div class="tip-label" data-i18n="home.tip">今日小贴士</div>
+          <div class="tip-text" id="dailyTip"></div>
+        </div>
+      </div>
+
+      <div class="api-status-bar" id="apiStatusBar"></div>
+    </section>
+
+    <!-- 上传页 -->
+    <section class="page" id="page-upload">
+      <h2 class="page-title" data-i18n="upload.title">⊹ 上传餐食照片</h2>
+      <p class="page-subtitle" data-i18n="upload.sub">拍下你的一餐 — AI 会识别食物,你也可以手动修正</p>
+
+      <!-- 步骤1:上传 -->
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-scarecrow">
+          <svg viewBox="0 0 16 24" shape-rendering="crispEdges">
+            <!-- 帽子 -->
+            <rect x="4" y="0" width="8" height="1" fill="#7a5230"/>
+            <rect x="3" y="1" width="10" height="3" fill="#a67244"/>
+            <rect x="5" y="4" width="6" height="1" fill="#7a5230"/>
+            <!-- 脸 -->
+            <rect x="4" y="5" width="8" height="5" fill="#deb78a"/>
+            <rect x="5" y="7" width="1" height="1" fill="#2d2418"/>
+            <rect x="10" y="7" width="1" height="1" fill="#2d2418"/>
+            <rect x="6" y="9" width="4" height="1" fill="#2d2418"/>
+            <!-- 衣服 -->
+            <rect x="2" y="10" width="12" height="8" fill="#5b8db8"/>
+            <rect x="2" y="11" width="12" height="1" fill="#7eabd0"/>
+            <rect x="6" y="13" width="4" height="1" fill="#fff5cf"/>
+            <!-- 手臂(横向) -->
+            <rect x="0" y="11" width="2" height="2" fill="#5b8db8"/>
+            <rect x="14" y="11" width="2" height="2" fill="#5b8db8"/>
+            <!-- 杆 -->
+            <rect x="7" y="18" width="2" height="6" fill="#7a5230"/>
+            <!-- 草 -->
+            <rect x="0" y="14" width="1" height="2" fill="#5fa849"/>
+            <rect x="15" y="14" width="1" height="2" fill="#5fa849"/>
+          </svg>
+        </div>
+        <div class="upload-title" data-i18n="upload.zone">▸ 把照片拖进来,或点击下方按钮</div>
+        <div class="upload-hint" data-i18n="upload.hint">支持 jpg / png / webp · 最大 8MB</div>
+        <div class="upload-main-row" id="uploadMainRow">
+          <div class="upload-preview" id="uploadPreview">
+            <img id="previewImg" alt="">
+            <button class="preview-remove" id="btnRemoveImg">✕</button>
+          </div>
+          <div class="meal-desc-box" id="mealDescBox">
+            <label class="meal-desc-label" for="mealDesc" data-i18n="upload.descLabel">✎ 写下你这一餐的心境(可选)</label>
+            <textarea id="mealDesc" class="meal-desc-input" rows="6"
+              data-i18n-ph="upload.descPlaceholder"
+              placeholder="例如:今天加班到很晚,实在太累了,想吃点炸的犒劳一下自己…&#10;&#10;写下当时的情绪或情境,完成后会生成专属的「进食心理报告」。"></textarea>
+            <div class="meal-desc-hint" data-i18n="upload.descHint">ⓘ 不填也没关系 —— 当下心境无法分析时,我们不会臆测你的心理。</div>
+          </div>
+        </div>
+        <div class="upload-actions">
+          <button class="pbtn pbtn-primary" id="btnPickFile">
+            <span data-i18n="upload.pick">📁 选择图片</span>
+          </button>
+          <button class="pbtn pbtn-ghost" id="btnUseCamera" data-i18n="upload.camera">📷 调用摄像头</button>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none">
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+      </div>
+
+      <!-- 摄像头弹窗 -->
+      <div class="cam-overlay" id="camOverlay" style="display:none">
+        <div class="cam-modal">
+          <div class="cam-modal-title" id="camTitle" data-i18n="cam.title">📷 拍下这一餐</div>
+          <div class="cam-stage">
+            <video id="camVideo" autoplay playsinline muted></video>
+            <canvas id="camCanvas" style="display:none"></canvas>
+            <img id="camShot" alt="" style="display:none">
+            <div class="cam-msg" id="camMsg" data-i18n="cam.starting">正在启动摄像头…</div>
+          </div>
+          <div class="cam-controls">
+            <button class="pbtn pbtn-ghost" id="camCancel" data-i18n="cam.cancel">取消</button>
+            <button class="pbtn pbtn-primary" id="camCapture" data-i18n="cam.capture">📸 拍照</button>
+            <button class="pbtn pbtn-ghost" id="camRetake" style="display:none" data-i18n="cam.retake">↻ 重拍</button>
+            <button class="pbtn pbtn-primary" id="camUse" style="display:none" data-i18n="cam.use">✓ 使用这张</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 步骤2:识别中或识别结果 -->
+      <div class="recognize-status" id="recognizeStatus" style="display:none">
+        <div class="rs-icon"><div class="rs-spinner"></div></div>
+        <div class="rs-text" id="rsText">识别中...</div>
+      </div>
+
+      <!-- 步骤3:食材清单(可增删搜索) -->
+      <div class="food-list-panel" id="foodListPanel" style="display:none">
+        <div class="panel-header">
+          <h3 class="panel-h-title" data-i18n="upload.items">▸ 步骤 2 — 确认/修正食材清单</h3>
+          <span class="api-mode-tag" id="apiModeTag"></span>
+        </div>
+        <p class="panel-hint" data-i18n="upload.itemsHint">AI 识别的结果在下方。点 ✕ 删除,点 + 修改份数,搜索关键词添加新食材。</p>
+
+        <div class="surprise-tip" data-i18n="upload.surpriseTip"><span class="blink">✦</span> 点击食材卡片有惊喜哦 <span class="blink">✦</span></div>
+
+        <div class="food-items" id="foodItems"></div>
+
+        <div class="search-add">
+          <div class="search-row">
+            <input class="search-input" id="foodSearch" data-i18n-ph="upload.search" placeholder="搜索添加食材:鸡蛋 / 牛肉 / egg ...">
+            <button class="pbtn pbtn-ghost small" id="btnShowAll" data-i18n="upload.showAll">所有食材</button>
+          </div>
+          <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <div class="panel-footer">
+          <button class="pbtn pbtn-ghost" id="btnReupload" data-i18n="upload.reupload">↺ 重新上传</button>
+          <button class="pbtn pbtn-primary" id="btnGenerateReport">
+            <span data-i18n="upload.report">✨ 生成营养报告</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 报告页 -->
+    <section class="page" id="page-report">
+      <h2 class="page-title" data-i18n="report.title">⊹ 本次饮食情绪报告</h2>
+      <p class="page-subtitle" id="reportDate"></p>
+
+      <div class="report-grid">
+        <!-- 左:生理面板 -->
+        <div class="report-panel left-panel">
+          <div class="panel-banner physio">
+            <span class="banner-icon">⚕</span>
+            <span data-i18n="report.physio">生 理 数 据</span>
+          </div>
+
+          <div class="meal-photo-wrap">
+            <img class="meal-photo" id="reportPhoto" alt="">
+            <div class="meal-photo-deco-corner tl"></div>
+            <div class="meal-photo-deco-corner tr"></div>
+            <div class="meal-photo-deco-corner bl"></div>
+            <div class="meal-photo-deco-corner br"></div>
+          </div>
+
+          <div class="cal-bigboard">
+            <div class="cal-label" data-i18n="report.cal">本餐总热量</div>
+            <div class="cal-num"><span id="rCal">0</span><span class="cal-unit">kcal</span></div>
+            <div class="cal-status" id="rRatio">--</div>
+          </div>
+
+          <div class="food-summary">
+            <div class="fs-title" data-i18n="report.items">▸ 食材组成</div>
+            <div class="fs-list" id="rFoodList"></div>
+          </div>
+
+          <div class="macro-section">
+            <div class="ms-title" data-i18n="report.macro">▸ 三大营养素</div>
+            <div class="macro-grid">
+              <div class="macro-cell protein">
+                <div class="m-lab" data-i18n="report.protein">蛋白质</div>
+                <div class="m-num"><span id="rProtein">0</span>g</div>
+                <div class="m-bar"><div class="m-bar-fill" id="rProteinBar"></div></div>
+                <div class="m-pct" id="rProteinPct">0%</div>
+              </div>
+              <div class="macro-cell carb">
+                <div class="m-lab" data-i18n="report.carb">碳水</div>
+                <div class="m-num"><span id="rCarb">0</span>g</div>
+                <div class="m-bar"><div class="m-bar-fill" id="rCarbBar"></div></div>
+                <div class="m-pct" id="rCarbPct">0%</div>
+              </div>
+              <div class="macro-cell fat">
+                <div class="m-lab" data-i18n="report.fat">脂肪</div>
+                <div class="m-num"><span id="rFat">0</span>g</div>
+                <div class="m-bar"><div class="m-bar-fill" id="rFatBar"></div></div>
+                <div class="m-pct" id="rFatPct">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="micro-section">
+            <div class="ms-title" data-i18n="report.micro">▸ 维生素 & 矿物质</div>
+            <div class="micro-grid" id="microGrid"></div>
+          </div>
+
+          <div class="data-source">
+            <span data-i18n="report.dataNote">ⓘ 数据来源:USDA FoodData Central + 中国食物成分表(GB)。单份典型估算,实际因烹饪方式略有差异。</span>
+          </div>
+        </div>
+
+        <!-- 右:心理面板 -->
+        <div class="report-panel right-panel">
+          <div class="panel-banner psy">
+            <span class="banner-icon">✿</span>
+            <span data-i18n="report.psy">心 理 数 据</span>
+          </div>
+
+          <!-- 进食心理报告(仅当用户填写了当餐描述才出现,优先展示) -->
+          <div class="psych-report" id="psychReport" style="display:none"></div>
+
+          <div class="meal-cat-tag" id="rMealType">--</div>
+
+          <div class="motive-badge">
+            <div class="motive-lab" data-i18n="report.motive">▸ 进食动机判定</div>
+            <div class="motive-tag" id="rMoodTag">--</div>
+            <div class="motive-desc" id="rMoodDesc">--</div>
+          </div>
+
+          <div class="psy-score-box">
+            <div class="psy-row">
+              <span class="ps-label" data-i18n="report.mood">情绪综合评分</span>
+              <span class="ps-num"><span id="rScoreNum">0</span>/100</span>
+            </div>
+            <div class="ps-bar good"><div class="ps-bar-fill" id="rScoreFill"></div></div>
+          </div>
+
+          <div class="psy-score-box">
+            <div class="psy-row">
+              <span class="ps-label" data-i18n="report.stress">压力相关度</span>
+              <span class="ps-num"><span id="rStressNum">0</span>/100</span>
+            </div>
+            <div class="ps-bar stress"><div class="ps-bar-fill" id="rStressFill"></div></div>
+          </div>
+
+          <div class="psy-score-box">
+            <div class="psy-row">
+              <span class="ps-label" data-i18n="report.balance">营养均衡度</span>
+              <span class="ps-num"><span id="rBalanceNum">0</span>/100</span>
+            </div>
+            <div class="ps-bar balance"><div class="ps-bar-fill" id="rBalanceFill"></div></div>
+          </div>
+
+          <div class="analysis-scroll">
+            <div class="scroll-corner tl"></div>
+            <div class="scroll-corner tr"></div>
+            <div class="scroll-corner bl"></div>
+            <div class="scroll-corner br"></div>
+            <div class="analysis-title" data-i18n="report.analysis">— 心 理 分 析 —</div>
+            <div class="analysis-text" id="rAnalysis">--</div>
+          </div>
+
+          <div class="tips-list" id="rTips"></div>
+
+          <div class="report-actions">
+            <button class="pbtn pbtn-secondary" id="btnSaveReport">
+              <span data-i18n="report.save">💾 保存到记录</span>
+            </button>
+            <button class="pbtn pbtn-primary" id="btnCloseReport">
+              <span data-i18n="report.close">✓ 完成</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 历史 -->
+    <section class="page" id="page-history">
+      <h2 class="page-title" data-i18n="history.title">⊹ 历史饮食记录</h2>
+      <p class="page-subtitle" data-i18n="history.sub">每一餐都是写给自己的小信件</p>
+      <div id="historyContainer"></div>
+    </section>
+
+    <!-- 月报 -->
+    <section class="page" id="page-monthly">
+      <h2 class="page-title" data-i18n="monthly.title">⊹ 月度身心趋势</h2>
+      <p class="page-subtitle" id="monthlySubtitle"></p>
+      <div id="monthlyContent"></div>
+    </section>
+
+    <!-- 方案 -->
+    <section class="page" id="page-plan">
+      <h2 class="page-title" data-i18n="plan.title">⊹ 饮食心理调节方案</h2>
+      <p class="page-subtitle" data-i18n="plan.sub">根据你的饮食行为,为你定制的温柔建议</p>
+
+      <div class="plan-tabs">
+        <button class="plan-tab active" data-plan="binge">🍔 <span data-i18n="plan.t1">频繁暴食</span></button>
+        <button class="plan-tab" data-plan="restrict">🥬 <span data-i18n="plan.t2">过度节食</span></button>
+        <button class="plan-tab" data-plan="irregular">⏰ <span data-i18n="plan.t3">作息不规律</span></button>
+      </div>
+
+      <div id="planContent"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-fence"></div>
+    <p class="footer-text" data-i18n="footer.text">⊹ Taste Diary · 食味日记 · 数据来自 USDA / 中国食物成分表 ⊹</p>
+  </footer>
+</div>
+
+<!-- 鼓励文案弹窗 -->
+<div class="encourage-modal" id="encourageModal">
+  <div class="encourage-box">
+    <div class="encourage-mascot">
+      <svg viewBox="0 0 24 24" shape-rendering="crispEdges">
+        <rect x="9" y="2" width="6" height="2" fill="#5fa849"/>
+        <rect x="8" y="3" width="2" height="2" fill="#7bc457"/>
+        <rect x="14" y="3" width="2" height="2" fill="#7bc457"/>
+        <rect x="7" y="5" width="10" height="2" fill="#e85a4f"/>
+        <rect x="6" y="7" width="12" height="8" fill="#e85a4f"/>
+        <rect x="7" y="15" width="10" height="2" fill="#c44539"/>
+        <rect x="9" y="9" width="2" height="2" fill="#fff"/>
+        <rect x="13" y="9" width="2" height="2" fill="#fff"/>
+        <rect x="10" y="10" width="1" height="1" fill="#2d2418"/>
+        <rect x="14" y="10" width="1" height="1" fill="#2d2418"/>
+        <rect x="9" y="13" width="6" height="1" fill="#2d2418"/>
+        <rect x="7" y="11" width="2" height="1" fill="#ff8a96"/>
+        <rect x="15" y="11" width="2" height="1" fill="#ff8a96"/>
+      </svg>
+    </div>
+    <div class="encourage-title" data-i18n="enc.title">★ 给 你 的 一 句 话 ★</div>
+    <div class="encourage-text" id="encourageText"></div>
+    <div class="encourage-bar"><div class="encourage-bar-fill" id="encourageBar"></div></div>
+    <div class="encourage-foot">
+      <span class="encourage-count" id="encourageCount">10s</span>
+      <button class="pbtn pbtn-ghost small" id="btnCloseEncourage" data-i18n="enc.close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 全局加载层 -->
+<div class="g-loading" id="gLoading">
+  <div class="g-load-box">
+    <div class="g-spinner">
+      <div class="gs-seg"></div><div class="gs-seg"></div><div class="gs-seg"></div><div class="gs-seg"></div>
+    </div>
+    <div class="g-load-text" id="gLoadText">载入中...</div>
+  </div>
+</div>
+
+<!-- 食材详情弹窗 (Tooltip with Pingu) -->
+<div class="food-tip-backdrop" id="foodTipBackdrop">
+  <div class="food-tip-card" id="foodTipCard">
+    <button class="ft-close" id="foodTipClose">✕</button>
+    <div class="ft-head">
+      <div class="ft-name" id="foodTipName">名称</div>
+      <div class="ft-cat" id="foodTipCat">分类</div>
+    </div>
+    <div class="ft-body">
+      <div class="ft-desc" id="foodTipDesc">描述</div>
+      <div class="ft-nutri">
+        <div class="ft-nutri-title">▸ 每 份 营 养 成 分</div>
+        <div class="ft-stat"><span class="ft-ico ico-cal">CAL</span><span class="ft-lab">热量</span><span class="ft-val" id="ftCal">— kcal</span></div>
+        <div class="ft-stat"><span class="ft-ico ico-pro">PRO</span><span class="ft-lab">蛋白质</span><span class="ft-val" id="ftPro">— g</span></div>
+        <div class="ft-stat"><span class="ft-ico ico-carb">CAR</span><span class="ft-lab">碳水</span><span class="ft-val" id="ftCarb">— g</span></div>
+        <div class="ft-stat"><span class="ft-ico ico-fat">FAT</span><span class="ft-lab">脂肪</span><span class="ft-val" id="ftFat">— g</span></div>
+      </div>
+    </div>
+    <!-- 像素小企鹅 -->
+    <svg class="ft-pingu" viewBox="0 0 20 24" shape-rendering="crispEdges">
+      <!-- 脚 -->
+      <rect x="5" y="20" width="4" height="2" fill="#f4a73f"/>
+      <rect x="11" y="20" width="4" height="2" fill="#f4a73f"/>
+      <!-- 黑色圆顶身体 -->
+      <rect x="6" y="1" width="8" height="1" fill="#23262f"/>
+      <rect x="4" y="2" width="12" height="18" fill="#2d3142"/>
+      <rect x="5" y="2" width="6" height="1" fill="#3a3f54"/>
+      <!-- 白脸 + 白肚 -->
+      <rect x="6" y="4" width="8" height="15" fill="#fbf8f1"/>
+      <rect x="5" y="6" width="1" height="11" fill="#fbf8f1"/>
+      <rect x="14" y="6" width="1" height="11" fill="#fbf8f1"/>
+      <!-- 大圆眼 -->
+      <rect x="7" y="5" width="2" height="3" fill="#23262f"/>
+      <rect x="11" y="5" width="2" height="3" fill="#23262f"/>
+      <rect x="7" y="5" width="1" height="1" fill="#fff"/>
+      <rect x="11" y="5" width="1" height="1" fill="#fff"/>
+      <!-- 喙 -->
+      <rect x="9" y="8" width="3" height="2" fill="#f4a73f"/>
+      <rect x="10" y="10" width="1" height="1" fill="#d97f3f"/>
+      <!-- 翅膀 -->
+      <rect x="2" y="9" width="2" height="7" fill="#2d3142"/>
+      <rect x="16" y="9" width="2" height="7" fill="#2d3142"/>
+      <!-- 腮红 -->
+      <rect x="6" y="9" width="1" height="1" fill="#ffb3c1" opacity="0.85"/>
+      <rect x="13" y="9" width="1" height="1" fill="#ffb3c1" opacity="0.85"/>
+    </svg>
+  </div>
+</div>
+
+<!-- 打卡完成成就弹窗 -->
+<div class="achievement-backdrop" id="achievementBackdrop">
+  <div class="achievement-card">
+    <div class="ach-trophy">🏆</div>
+    <div class="ach-title" data-i18n="plan.achTitle">今 日 完 成 ！</div>
+    <div class="ach-sub" data-i18n="plan.achSub">你今天好好照顾了自己 ✨<br>明天继续加油哦～</div>
+    <button class="ach-btn" id="achievementClose" data-i18n="plan.achBtn">▸ 收 下</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- 主脚本 -->
+<script src="config.js"></script>
+<script src="companion.js"></script>
+<script src="store.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
