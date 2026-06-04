@@ -1554,7 +1554,8 @@ async function generateReport() {
   fillReport(CURRENT_RECORD);
 
   // 自动保存到本地历史——避免用户忘记点「保存」而丢失记录
-  if (Store.save(CURRENT_RECORD)) {
+  // 用 saveAsync 把照片压成缩略图再存,移动端不再溢出
+  if (await Store.saveAsync(CURRENT_RECORD)) {
     CURRENT_RECORD._saved = true;
     toast(t('report.autoSaved'), 'ok');
   }
@@ -1749,14 +1750,14 @@ function typewriter(el, text, speed) {
   step();
 }
 
-function saveCurrentReport() {
+async function saveCurrentReport() {
   if (!CURRENT_RECORD) return;
   if (CURRENT_RECORD._saved) {
     toast(t('report.alreadySaved'), 'ok');
     return;
   }
   gLoad(true, t('g.saving'));
-  const ok = Store.save(CURRENT_RECORD);
+  const ok = await Store.saveAsync(CURRENT_RECORD);
   gLoad(false);
   if (ok) {
     CURRENT_RECORD._saved = true;
