@@ -10,6 +10,38 @@ const Store = (() => {
   const HISTORY_KEY = 'sm_history';   // 历史记录数组
   const MAX_RECORDS = 60;             // 与原后端保持一致,最多保留 60 条
   const MONTHLY_MIN = 7;              // 生成月度趋势所需最少餐数
+  const THUMB_MAX = 400;              // 缩略图最长边像素,移动端存储友好
+
+  // 把一张 base64 图片压缩成小缩略图(jpeg),大幅减小占用空间。
+  // 返回 Promise<string>。失败时回退为原图。
+  function makeThumb(dataUrl) {
+    return new Promise((resolve) => {
+      if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) {
+        resolve(dataUrl || '');
+        return;
+      }
+      try {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            let { width: w, height: h } = img;
+            if (w > h && w > THUMB_MAX) { h = Math.round(h * THUMB_MAX / w); w = THUMB_MAX; }
+            else if (h >= w && h > THUMB_MAX) { w = Math.round(w * THUMB_MAX / h); h = THUMB_MAX; }
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.7));
+          } catch {
+            resolve(dataUrl);
+          }
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      } catch {
+        resolve(dataUrl);
+      }
+    });
+  }
 
   function readHistory() {
     try {
@@ -47,6 +79,15 @@ const Store = (() => {
     const filtered = all.filter(r => r.id !== record.id);
     filtered.unshift(record);
     return writeHistory(filtered.slice(0, MAX_RECORDS));
+  }
+
+  // 异步保存:先把记录中的照片压成缩略图再存,避免移动端 localStorage 配额溢出。
+  // 不修改传入的原始 record(报告页仍显示原图),只把缩略图版本写入历史。
+  async function saveAsync(record) {
+    if (!record) return false;
+    const thumb = await makeThumb(record.imageRef);
+    const toStore = Object.assign({}, record, { imageRef: thumb });
+    return save(toStore);
   }
 
   function getAll() {
@@ -112,7 +153,7 @@ const Store = (() => {
     };
   }
 
-  return { save, getAll, getById, remove, clear, monthly, getName, setName };
+  return { save, saveAsync, getAll, getById, remove, clear, monthly, getName, setName };
 })();
 
 window.Store = Store;
